@@ -1,1 +1,9 @@
-import React,{useState} from 'react';import {createRoot} from 'react-dom/client';import {AuthProvider} from './context/AuthContext';import Workspace from './pages/Workspace';import Admin from './pages/Admin';import './styles/app.css';function App(){const [advanced,setAdvanced]=useState(false);return advanced?<><button onClick={()=>setAdvanced(false)}>← Year workbook</button><Admin reload={async()=>{}}/></>:<Workspace onArchive={()=>location.href=import.meta.env.DEV?'http://localhost:5173/archive':'/archive'} onAdmin={()=>setAdvanced(true)}/>;}createRoot(document.getElementById('root')).render(<AuthProvider><App/></AuthProvider>);
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App.jsx';
+
+createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

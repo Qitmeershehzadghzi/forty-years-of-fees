@@ -1,0 +1,25 @@
+{
+  "name": "forty-years-of-fees",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Greenwich University Karachi — Journey 40 Historical Fee & Financial Analytics Research Platform",
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:admin": "cd admin && npm run dev",
+    "seed": "cd backend && npm run seed",
+    "test": "cd backend && npm test",
+    "build:frontend": "cd frontend && npm run build",
+    "build:admin": "cd admin && npm run build"
+  },
+  "keywords": [
+    "greenwich-university",
+    "journey-40",
+    "higher-education-fees",
+    "inflation-analytics",
+    "karachi",
+    "pakistan"
+  ],
+  "author": "Greenwich University Research / Journey 40",
+  "license": "UNLICENSED"
+}
