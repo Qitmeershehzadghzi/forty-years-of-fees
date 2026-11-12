@@ -1,0 +1,30 @@
+{
+  "name": "fees-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "admin:create": "node config/create-admin.js",
+    "test": "node --test controllers/workspace.test.js",
+    "test:integration": "node --test controllers/integration.test.js",
+    "migrate:legacy": "node config/migrate-legacy.js",
+    "research:import": "node config/import-research.js"
+  },
+  "dependencies": {
+    "@google/genai": "^3.2.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^8.19.0",
+    "multer": "^2.5.0",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server-core": "^11.3.0"
+  }
+}

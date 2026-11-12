@@ -1,0 +1,38 @@
+[
+  {
+    "url": "https://www.greenwich.edu.pk/fees",
+    "retrievedAt": "2026-11-08",
+    "file": "fees.html",
+    "sha256": "e46f2034278972cbdf885a98c94ac1bf334e7d1d8cfa45aeb1d88381b0e82246"
+  },
+  {
+    "url": "https://www.greenwich.edu.pk/intl/pearson",
+    "retrievedAt": "2026-11-08",
+    "file": "intl-pearson.html",
+    "sha256": "383c2f3262657f873a38a0b8005c1c5ff14616366a6f389b21ed54647d628833"
+  },
+  {
+    "url": "https://www.greenwich.edu.pk/intl/uwe/uwe-course-1",
+    "retrievedAt": "2026-11-08",
+    "file": "intl-uwe-uwe-course-1.html",
+    "sha256": "58544ac7eb4337b0f23ddb08d32d4116fcbbc99674647bc0c81cb3b8bb905141"
+  },
+  {
+    "url": "https://www.greenwich.edu.pk/intl/uwe/uwe-course-2",
+    "retrievedAt": "2026-11-08",
+    "file": "intl-uwe-uwe-course-2.html",
+    "sha256": "c0eb3ff91380c27b85e8afb647b807a3db3bff708b2289c7c8d48d2deecd00e2"
+  },
+  {
+    "url": "https://www.greenwich.edu.pk/intl/uwe/uwe-course-3",
+    "retrievedAt": "2026-11-08",
+    "file": "intl-uwe-uwe-course-3.html",
+    "sha256": "b36c1ab749da3415af91551f7aa3d00a698cc4fbfcf90085ba40cce3f7ba88d1"
+  },
+  {
+    "url": "https://www.greenwich.edu.pk/intl/uwe/uwe-course-4",
+    "retrievedAt": "2026-11-08",
+    "file": "intl-uwe-uwe-course-4.html",
+    "sha256": "014d8ba320ab103c353a9a06316dfc7d95f881fcf64fb90bbc233eb9551c0bac"
+  }
+]

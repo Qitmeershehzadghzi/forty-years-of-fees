@@ -1,0 +1,139 @@
+{
+  "retrievedAt": "2026-11-06",
+  "schools": [
+    {
+      "school": "business",
+      "url": "https://www.greenwich.edu.pk/school/business",
+      "titles": [
+        "Associate Degree in Accounting",
+        "Associate Degree in Finance",
+        "Associate Degree in Marketing",
+        "Associate Degree in Human Resource Management",
+        "Associate Degree in Entrepreneurship",
+        "Associate Degree in Supply Chain Management",
+        "Associate Degree in Islamic Banking & Finance",
+        "Associate Degree in Project Management",
+        "Associate Degree in Business Analytics",
+        "Associate Degree in Tourism & Hospitality Management",
+        "Associate Degree in Business Administration",
+        "Associate Degree in Economics & Finance",
+        "Associate Degree in Banking & Finance",
+        "Associate Degree in Digital Business Management",
+        "Bachelor of Studies in Accounting & Finance",
+        "Bachelor of Science in Agribusiness",
+        "Bachelor of Science in Aviation Management",
+        "Bachelor of Science in Banking and Finance",
+        "Bachelor of Science in Digital Business Management",
+        "Bachelor of Studies in Business Analytics",
+        "Bachelor of Studies in Entrepreneurship",
+        "Bachelor of Studies in Project Management",
+        "Bachelor of Studies in Supply Chain Management",
+        "Bachelor of Studies in Tourism & Hospitality Management",
+        "Bachelor of Studies in Islamic Banking & Finance",
+        "Bachelor of Business Administration (BBA)",
+        "Bachelors of Science in Economics & Finance",
+        "Master of Business Administration (1.5 Years)",
+        "Master of Business Administration (2.5 Years)",
+        "Executive Master of Business Administration (EMBA)",
+        "MPhil in Business Administration",
+        "MPhil in Economics",
+        "PhD in Business Administration",
+        "PhD in Economics"
+      ]
+    },
+    {
+      "school": "computing",
+      "url": "https://www.greenwich.edu.pk/school/computing",
+      "titles": [
+        "Associate Degree - Computing",
+        "BS in Computer Science"
+      ]
+    },
+    {
+      "school": "hospitality",
+      "url": "https://www.greenwich.edu.pk/school/hospitality",
+      "titles": [
+        "BS Tourism & Hospitality Management"
+      ]
+    },
+    {
+      "school": "ary",
+      "url": "https://www.greenwich.edu.pk/school/ary",
+      "titles": [
+        "Associate Degree in Media & Communication Studies",
+        "Associate Degree in Communication Design",
+        "Associate Degree in Digital Media Marketing",
+        "Associate Degree in Film Studies",
+        "Associate Degree in Visual Effects and Animation",
+        "Bachelor of Studies in Media & Communication Studies",
+        "Bachelor of Science in Mass Communication & Media Studies",
+        "BS in Liberal Arts",
+        "Bachelor of Science in Communication Design",
+        "Bachelor of Science in Digital Media Marketing",
+        "Bachelor of Science in Film Studies",
+        "Bachelor of Science in Visual Effects and Animation",
+        "Bachelor of Fine Arts (BFA)",
+        "Master of Science in Mass Communication & Media Studies",
+        "Master of Science in Media Management & Advertising",
+        "PhD in Mass Communication & Media Studies"
+      ]
+    },
+    {
+      "school": "drft",
+      "url": "https://www.greenwich.edu.pk/school/drft",
+      "titles": [
+        "Associate Of Science in Fashion Studies",
+        "Bachelor of Science in Fashion Studies",
+        "Master of Science (MS) in Sustainable Fashion Innovation and Branding"
+      ]
+    },
+    {
+      "school": "education",
+      "url": "https://www.greenwich.edu.pk/school/education",
+      "titles": [
+        "Associate Of Science in English",
+        "Bachelors of Education (1.5 Years)",
+        "Bachelors of Education (2.5 Years)",
+        "Bachelor of Studies in English",
+        "BS in Sports and Physical Education",
+        "MPhil in Education",
+        "MPhil in English",
+        "MPhil in International Relations",
+        "MPhil in Political Science",
+        "MPhil in Sociology",
+        "PhD in Education",
+        "PhD in International Relations",
+        "PhD in Political Science"
+      ]
+    },
+    {
+      "school": "thrive",
+      "url": "https://www.greenwich.edu.pk/school/thrive",
+      "titles": [
+        "Associate Of Science in Psychology",
+        "Bachelor of Studies in Psychology"
+      ]
+    },
+    {
+      "school": "graduate",
+      "url": "https://www.greenwich.edu.pk/school/graduate",
+      "titles": [
+        "Master of Business Administration (1.5 Years)",
+        "Executive Master of Business Administration (EMBA)",
+        "Master of Studies (MS) in Media & Communication Studies",
+        "Master of Science (MS) in Sustainable Fashion Innovation and Branding",
+        "MPhil in Economics",
+        "MPhil in Education",
+        "MPhil in English (Literature and Linguistics)",
+        "MPhil in International Relations",
+        "MPhil in Political Science",
+        "PhD in Business Administration",
+        "PhD in Economics",
+        "PhD in Mass Communication & Media Studies",
+        "PhD in Education",
+        "PhD in International Relations",
+        "PhD in Political Science"
+      ]
+    }
+  ]
+}
