@@ -28,6 +28,7 @@ router.use('/audit', auditRoutes);
 // Health check endpoint
 router.get('/health', (req, res) => {
   res.json({
+    ok: true,
     status: 'online',
     timestamp: new Date().toISOString(),
     service: 'Forty Years of Fees API — Greenwich University',

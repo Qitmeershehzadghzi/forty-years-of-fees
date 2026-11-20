@@ -18,23 +18,8 @@ app.use(helmet({
 app.set('trust proxy', 1);
 
 // CORS Configuration
-const allowedOrigins = [
-  config.frontendUrl,
-  config.adminUrl,
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://127.0.0.1:5173',
-  'http://127.0.0.1:5174',
-];
-
 app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, server-to-server)
-    if (!origin || allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
-      return callback(null, true);
-    }
-    return callback(null, true); // Permissive in dev mode
-  },
+  origin: true, // Allow all origins for the research API
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -50,12 +35,27 @@ app.use('/api', apiLimiter);
 // Mount API routes
 app.use('/api', routes);
 
-// Root info endpoint so the deployed base URL does not look broken
+// Root info and health endpoint directly at base URL (/)
 app.get('/', (req, res) => {
   res.json({
+    ok: true,
     status: 'online',
     service: 'Forty Years of Fees API — Greenwich University',
-    health: '/api/health',
+    version: '1.0.0',
+    initiative: 'Journey 40',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Also support /health directly
+app.get('/health', (req, res) => {
+  res.json({
+    ok: true,
+    status: 'online',
+    service: 'Forty Years of Fees API — Greenwich University',
+    version: '1.0.0',
+    initiative: 'Journey 40',
+    timestamp: new Date().toISOString(),
   });
 });
 

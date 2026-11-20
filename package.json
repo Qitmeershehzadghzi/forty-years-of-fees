@@ -2,6 +2,7 @@
   "name": "forty-years-of-fees",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Greenwich University Karachi — Journey 40 Historical Fee & Financial Analytics Research Platform",
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
@@ -11,6 +12,19 @@
     "test": "cd backend && npm test",
     "build:frontend": "cd frontend && npm run build",
     "build:admin": "cd admin && npm run build"
+  },
+  "dependencies": {
+    "@google/genai": "^0.1.1",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.0",
+    "multer": "^1.4.5-lts.1",
+    "zod": "^4.1.0"
   },
   "keywords": [
     "greenwich-university",
