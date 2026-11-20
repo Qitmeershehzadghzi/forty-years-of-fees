@@ -13,6 +13,10 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+// Hosting platforms (Vercel, Render, Railway) put the app behind a proxy.
+// Without this, express-rate-limit rejects requests that carry X-Forwarded-For.
+app.set('trust proxy', 1);
+
 // CORS Configuration
 const allowedOrigins = [
   config.frontendUrl,
@@ -45,6 +49,15 @@ app.use('/api', apiLimiter);
 
 // Mount API routes
 app.use('/api', routes);
+
+// Root info endpoint so the deployed base URL does not look broken
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    service: 'Forty Years of Fees API — Greenwich University',
+    health: '/api/health',
+  });
+});
 
 // 404 Handler
 app.use((req, res) => {
