@@ -23,7 +23,7 @@ cd forty-years-of-fees
 # 2. Configure Backend Environment
 # Edit backend/.env with your MONGODB_URI and GEMINI_API_KEY
 
-# 3. Seed Database (Generates 400 annual tuition records & 40-year CPI)
+# 3. Seed Database (Generates 410 annual tuition records & 41-year CPI)
 npm run seed
 
 # 4. Start all three applications in separate terminals:

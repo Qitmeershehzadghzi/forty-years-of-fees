@@ -15,13 +15,14 @@ import { getProgrammeColor } from '../../utils/chartHelpers.js';
 export const ProgrammeComparisonChart = ({
   data = [],
   programmes = [],
-  mode = 'nominal', // 'nominal' or 'real'
+  mode = 'nominal',
+  baseYear = 2027,
   height = 420,
 }) => {
   if (!data || data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-xs font-mono text-[#788391]">
-        No comparison records available
+      <div className="h-64 flex items-center justify-center text-xs text-[#5C6B66]">
+        No comparison data to chart yet.
       </div>
     );
   }
@@ -29,18 +30,18 @@ export const ProgrammeComparisonChart = ({
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#101C2C] text-[#F5F1E8] border border-[#1A2B40] p-3 rounded-lg shadow-xl text-xs font-mono">
-          <div className="font-bold text-[#D6AD60] mb-2 border-b border-[#1A2B40] pb-1">
-            Academic Year {label} ({mode === 'real' ? 'Real 2026 PKR' : 'Nominal PKR'})
+        <div className="bg-white text-[#12231F] border border-[#E2E7E2] p-3 rounded-lg shadow-lg text-xs">
+          <div className="font-semibold mb-2 border-b border-[#E2E7E2] pb-1">
+            {label} · {mode === 'real' ? `real ${baseYear} PKR` : 'nominal PKR'}
           </div>
           <div className="space-y-1">
             {payload.map((entry, idx) => (
               <div key={idx} className="flex justify-between gap-4">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: entry.color }}></span>
-                  {entry.name}:
+                <span className="flex items-center gap-1.5 text-[#5C6B66]">
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                  {entry.name}
                 </span>
-                <span className="font-bold">{formatPKR(entry.value)}</span>
+                <span className="font-semibold">{formatPKR(entry.value)}</span>
               </div>
             ))}
           </div>
@@ -53,28 +54,26 @@ export const ProgrammeComparisonChart = ({
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer>
-        <LineChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 25 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E0D6" />
+        <LineChart data={data} margin={{ top: 10, right: 24, left: 8, bottom: 10 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#E8EDE8" vertical={false} />
           <XAxis
             dataKey="year"
-            stroke="#788391"
+            stroke="#8A9A94"
             fontSize={11}
-            fontFamily="IBM Plex Mono"
             tickLine={false}
-            dy={10}
+            axisLine={false}
+            dy={8}
           />
           <YAxis
-            stroke="#788391"
+            stroke="#8A9A94"
             fontSize={11}
-            fontFamily="IBM Plex Mono"
             tickLine={false}
+            axisLine={false}
             tickFormatter={(v) => formatPKR(v, { compact: true })}
-            dx={-5}
+            width={80}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend
-            wrapperStyle={{ paddingTop: 15, fontSize: 12, fontFamily: 'IBM Plex Mono' }}
-          />
+          <Legend wrapperStyle={{ paddingTop: 12, fontSize: 12 }} />
           {programmes.map((p, idx) => {
             const dataKey = mode === 'real' ? `${p.code}_real` : p.code;
             return (
@@ -82,11 +81,11 @@ export const ProgrammeComparisonChart = ({
                 key={p.code}
                 type="monotone"
                 dataKey={dataKey}
-                name={`${p.name} (${p.code})`}
+                name={`${p.code} — ${p.name}`}
                 stroke={getProgrammeColor(p.code, idx)}
-                strokeWidth={2.4}
-                dot={{ r: 2 }}
-                activeDot={{ r: 5 }}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
               />
             );
           })}

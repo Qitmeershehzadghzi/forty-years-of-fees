@@ -10,15 +10,15 @@ export const SectionHeading = ({
   return (
     <div className={`mb-8 ${centered ? 'text-center max-w-2xl mx-auto' : ''} ${className}`}>
       {badge && (
-        <span className="inline-block px-3 py-1 mb-2.5 text-xs font-semibold uppercase tracking-wider text-[#966b1a] bg-[#D6AD60]/15 border border-[#D6AD60]/30 rounded-full font-mono">
+        <span className="block mb-2 text-xs font-semibold uppercase tracking-wider text-[#0F5C4E]">
           {badge}
         </span>
       )}
-      <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-[#101C2C] tracking-tight">
+      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#12231F]">
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-2 text-sm sm:text-base text-[#788391] leading-relaxed">
+        <p className="mt-2 text-sm sm:text-base text-[#5C6B66] leading-relaxed max-w-3xl">
           {subtitle}
         </p>
       )}

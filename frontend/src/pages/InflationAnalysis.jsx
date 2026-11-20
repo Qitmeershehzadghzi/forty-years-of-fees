@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  TrendingUp,
-  Percent,
-  Calendar,
-  BookOpen,
-  Scale,
-  ShieldCheck,
-  AlertCircle,
-  HelpCircle
-} from 'lucide-react';
-import SectionHeading from '../components/common/SectionHeading.jsx';
+import { TrendingUp, Percent, Scale, Calendar } from 'lucide-react';
 import StatCard from '../components/common/StatCard.jsx';
 import RealFeeChart from '../components/charts/RealFeeChart.jsx';
 import InflationChart from '../components/charts/InflationChart.jsx';
@@ -19,22 +9,32 @@ import SourceCitation from '../components/common/SourceCitation.jsx';
 
 import { getRealFees, getInflationTrends } from '../services/analyticsService.js';
 import { getProgrammes } from '../services/programmeService.js';
-import { formatPKR, formatPercent } from '../utils/currencyFormatter.js';
+
+const START_YEAR = 1987;
+const END_YEAR = 2027;
+
+const selectClass = 'w-full rounded-lg border border-[#E2E7E2] bg-white px-3 py-2.5 text-sm text-[#12231F] focus:outline-none focus:border-[#0F5C4E] focus:ring-2 focus:ring-[#0F5C4E]/20';
+
+const BASE_YEARS = [
+  { year: 2027, label: '2027', note: 'Current rupees' },
+  { year: 2016, label: '2016', note: 'PBS base (100)' },
+  { year: 2000, label: '2000', note: 'Millennium year' },
+  { year: 1987, label: '1987', note: 'Start of series' },
+];
 
 export const InflationAnalysis = () => {
   const [programmes, setProgrammes] = useState([]);
   const [selectedProgrammeId, setSelectedProgrammeId] = useState('');
-  const [baseYear, setBaseYear] = useState(2026);
+  const [baseYear, setBaseYear] = useState(END_YEAR);
   const [feeType, setFeeType] = useState('Total Annual Fee');
-  const [startYear, setStartYear] = useState(1987);
-  const [endYear, setEndYear] = useState(2026);
+  const [startYear, setStartYear] = useState(START_YEAR);
+  const [endYear, setEndYear] = useState(END_YEAR);
 
   const [realFeesData, setRealFeesData] = useState(null);
-  const [inflationTrends, setInflationTrends] = useState(null);
+  const [inflationTrends, setInflationTrends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load programmes
   useEffect(() => {
     async function loadProgs() {
       try {
@@ -48,29 +48,19 @@ export const InflationAnalysis = () => {
     loadProgs();
   }, []);
 
-  // Fetch inflation calculations
   const fetchData = async () => {
     if (!selectedProgrammeId) return;
     try {
       setLoading(true);
       setError(null);
       const [rf, inf] = await Promise.all([
-        getRealFees({
-          programmeId: selectedProgrammeId,
-          baseYear,
-          feeType,
-          startYear,
-          endYear,
-        }),
-        getInflationTrends({
-          startYear,
-          endYear,
-        }),
+        getRealFees({ programmeId: selectedProgrammeId, baseYear, feeType, startYear, endYear }),
+        getInflationTrends({ startYear, endYear }),
       ]);
       setRealFeesData(rf);
       setInflationTrends(inf?.trends || []);
     } catch (err) {
-      setError(err.message || 'Error computing inflation adjustment');
+      setError(err.message || 'Could not calculate the inflation adjustment.');
     } finally {
       setLoading(false);
     }
@@ -78,203 +68,180 @@ export const InflationAnalysis = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProgrammeId, baseYear, feeType, startYear, endYear]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-      
-      {/* HEADER */}
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+
       <div>
-        <SectionHeading
-          badge="Econometric Research"
-          title="Inflation & Purchasing Power Deflator Engine"
-          subtitle="Decomposing 40 years of nominal fee escalation against Pakistan Bureau of Statistics (PBS) Consumer Price Index (CPI) benchmarks."
-        />
+        <span className="text-xs font-semibold uppercase tracking-wider text-[#0F5C4E]">
+          Inflation deflator
+        </span>
+        <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-[#12231F]">
+          What did the fee really cost?
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm sm:text-base text-[#5C6B66] leading-relaxed">
+          A fee of Rs. 5,000 in 1987 and Rs. 300,000 in 2027 are not directly comparable.
+          This page converts every year into one base year so the comparison is fair.
+        </p>
       </div>
 
-      {/* FILTER PANEL */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl p-5 shadow-sm space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          
-          {/* Programme */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Subject Faculty
-            </label>
+      {/* Controls */}
+      <div className="rounded-xl border border-[#E2E7E2] bg-white p-4 sm:p-5 space-y-4">
+
+        <div>
+          <span className="block text-xs font-medium text-[#5C6B66] mb-2">Compare everything in</span>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {BASE_YEARS.map(tab => (
+              <button
+                key={tab.year}
+                type="button"
+                onClick={() => setBaseYear(tab.year)}
+                className={`rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                  baseYear === tab.year
+                    ? 'border-[#0F5C4E] bg-[#EDF5F2]'
+                    : 'border-[#E2E7E2] bg-white hover:bg-[#F6F7F4]'
+                }`}
+              >
+                <span className={`block text-sm font-semibold ${baseYear === tab.year ? 'text-[#0F5C4E]' : 'text-[#12231F]'}`}>
+                  {tab.label}
+                </span>
+                <span className="block text-[11px] text-[#5C6B66] mt-0.5">{tab.note}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-3 border-t border-[#E2E7E2]">
+          <label className="block">
+            <span className="block text-xs font-medium text-[#5C6B66] mb-1">Programme</span>
             <select
               value={selectedProgrammeId}
-              onChange={(e) => setSelectedProgrammeId(e.target.value)}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-medium text-[#101C2C]"
+              onChange={e => setSelectedProgrammeId(e.target.value)}
+              className={selectClass}
             >
-              {programmes.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.code} — {p.name}
-                </option>
+              {programmes.map(p => (
+                <option key={p._id} value={p._id}>{p.code} — {p.name}</option>
               ))}
             </select>
-          </div>
+          </label>
 
-          {/* Base Year */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Constant Currency Base Year
-            </label>
-            <select
-              value={baseYear}
-              onChange={(e) => setBaseYear(Number(e.target.value))}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-mono font-bold text-[#101C2C]"
-            >
-              <option value={2026}>2026 (Current Journey 40 Milestone)</option>
-              <option value={2016}>2016 (Official PBS Base Year: 100.0)</option>
-              <option value={2000}>2000 (Turn of Millennium)</option>
-              <option value={1987}>1987 (Institutional Foundation Year)</option>
+          <label className="block">
+            <span className="block text-xs font-medium text-[#5C6B66] mb-1">Fee item</span>
+            <select value={feeType} onChange={e => setFeeType(e.target.value)} className={selectClass}>
+              <option value="Total Annual Fee">Total annual fee</option>
+              <option value="Tuition Fee">Tuition fee</option>
+              <option value="Admission Fee">Admission fee</option>
+              <option value="Examination Fee">Examination fee</option>
             </select>
-          </div>
+          </label>
 
-          {/* Fee Type */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Fee Component
-            </label>
-            <select
-              value={feeType}
-              onChange={(e) => setFeeType(e.target.value)}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-medium text-[#101C2C]"
-            >
-              <option value="Total Annual Fee">Total Annual Fee</option>
-              <option value="Tuition Fee">Tuition Fee</option>
-              <option value="Admission Fee">Admission Fee</option>
-              <option value="Examination Fee">Examination Fee</option>
-            </select>
-          </div>
-
-          {/* Start Year */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Start Year
-            </label>
+          <label className="block">
+            <span className="block text-xs font-medium text-[#5C6B66] mb-1">Start year</span>
             <input
               type="number"
-              min="1987"
-              max="2026"
+              min={START_YEAR}
+              max={END_YEAR}
               value={startYear}
-              onChange={(e) => setStartYear(Number(e.target.value))}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-mono text-[#101C2C]"
+              onChange={e => setStartYear(Number(e.target.value))}
+              className={selectClass}
             />
-          </div>
+          </label>
 
-          {/* End Year */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              End Year
-            </label>
+          <label className="block">
+            <span className="block text-xs font-medium text-[#5C6B66] mb-1">End year</span>
             <input
               type="number"
-              min="1987"
-              max="2026"
+              min={START_YEAR}
+              max={END_YEAR}
               value={endYear}
-              onChange={(e) => setEndYear(Number(e.target.value))}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-mono text-[#101C2C]"
+              onChange={e => setEndYear(Number(e.target.value))}
+              className={selectClass}
             />
-          </div>
-
+          </label>
         </div>
       </div>
 
-      {/* METRICS SUMMARY CARDS */}
+      {/* Metrics */}
       {realFeesData?.metrics && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title="Nominal Growth"
+            title="Nominal growth"
             value={`+${realFeesData.metrics.nominalGrowth}%`}
-            subtext="Raw PKR Percentage Increase"
+            subtext="Raw rupee increase"
             icon={TrendingUp}
           />
           <StatCard
             title="Nominal CAGR"
-            value={`${realFeesData.metrics.nominalCAGR}% / yr`}
-            subtext="Annual Compounded Rate"
+            value={`${realFeesData.metrics.nominalCAGR}%`}
+            subtext="Per year"
             icon={Percent}
           />
           <StatCard
-            title="Real Purchasing Growth"
+            title="Real growth"
             value={`+${realFeesData.metrics.realGrowth}%`}
-            subtext={`Adjusted to ${baseYear} Constant Currency`}
+            subtext={`In ${baseYear} rupees`}
             icon={Scale}
-            badge="Real Growth"
-            badgeType="verified"
           />
           <StatCard
             title="Real CAGR"
-            value={`${realFeesData.metrics.realCAGR}% / yr`}
-            subtext="True Economic Expansion Rate"
-            icon={Percent}
-            badge="Real CAGR"
-            badgeType="verified"
+            value={`${realFeesData.metrics.realCAGR}%`}
+            subtext="After inflation"
+            icon={Calendar}
           />
         </div>
       )}
 
-      {/* CHART 1: REAL VS NOMINAL FEE */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl p-6 shadow-sm">
+      {/* Chart 1 */}
+      <div className="rounded-xl border border-[#E2E7E2] bg-white p-4 sm:p-6">
         {loading ? (
-          <div className="py-20">
-            <Loading text="Computing purchasing power deflators across 40 years..." />
-          </div>
+          <div className="py-20"><Loading text="Adjusting fees for inflation..." /></div>
         ) : error ? (
           <ErrorState message={error} onRetry={fetchData} />
         ) : realFeesData?.series ? (
-          <div>
+          <>
             <RealFeeChart
               data={realFeesData.series}
               programmeName={realFeesData.programme?.name}
               baseYear={baseYear}
-              height={440}
+              height={400}
             />
             <SourceCitation
-              sourceTitle="Pakistan Bureau of Statistics (PBS) 2015-16 CPI Series Deflator"
+              sourceTitle="Pakistan Bureau of Statistics CPI series (illustrative)"
               year={baseYear}
-              isSimulated={true}
+              isSimulated
             />
-          </div>
+          </>
         ) : null}
       </div>
 
-      {/* CHART 2: CPI & INFLATION TREND */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl p-6 shadow-sm">
-        <div className="mb-4">
-          <h3 className="font-serif font-bold text-lg text-[#101C2C]">
-            National Inflation Index (1987–2026)
-          </h3>
-          <p className="text-xs text-[#788391]">
-            Annual consumer price index value alongside annual percentage inflation volatility in Pakistan.
-          </p>
-        </div>
-        {inflationTrends ? (
-          <InflationChart data={inflationTrends} height={380} />
-        ) : (
-          <Loading text="Loading CPI inflation trajectory..." />
-        )}
+      {/* Chart 2 */}
+      <div className="rounded-xl border border-[#E2E7E2] bg-white p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-[#12231F]">The inflation behind the adjustment</h2>
+        <p className="text-sm text-[#5C6B66] mt-0.5 mb-2">
+          The green line is the price index. The bars are the yearly change.
+        </p>
+        <InflationChart data={inflationTrends} height={340} title={null} />
       </div>
 
-      {/* METHODOLOGY CALLOUT */}
-      <div className="bg-[#101C2C] text-[#F5F1E8] rounded-xl p-6 border border-[#1A2B40] text-xs leading-relaxed space-y-2">
-        <div className="flex items-center gap-2 text-[#D6AD60] font-mono font-bold text-sm">
-          <HelpCircle className="w-4 h-4" />
-          <span>Understanding Nominal vs Real (Constant Currency) Fees</span>
-        </div>
-        <p>
-          <strong>Nominal Fee:</strong> The exact rupee amount stated on the university fee receipt in that given calendar year.
-          Because Pakistan experienced high inflation between 1987 and 2026, comparing Rs. 5,000 in 1987 directly to Rs. 250,000 in 2026
-          distorts the true economic sacrifice made by families.
-        </p>
-        <p>
-          <strong>Real Fee:</strong> The purchasing-power equivalent converted into base year ({baseYear}) currency using the formula:
-          <span className="font-mono text-[#D6AD60] block my-1">
-            Real Fee = Historical Fee × (Base Year CPI / Historical Year CPI)
-          </span>
-          This demonstrates what the 1987 tuition fee represented in today's money.
-        </p>
+      {/* Plain explanation */}
+      <div className="rounded-xl border border-[#E2E7E2] bg-white p-5 sm:p-6">
+        <h2 className="text-sm font-semibold text-[#12231F] mb-3">Three terms, in plain words</h2>
+        <dl className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+          <div>
+            <dt className="font-semibold text-[#12231F]">Nominal fee</dt>
+            <dd className="mt-1 text-[#5C6B66] leading-relaxed">The number printed on the fee slip in that year.</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-[#12231F]">CPI</dt>
+            <dd className="mt-1 text-[#5C6B66] leading-relaxed">The price index used to measure how much a rupee buys.</dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-[#12231F]">Real fee</dt>
+            <dd className="mt-1 text-[#5C6B66] leading-relaxed">The fee converted into one base year's rupees, so years can be compared fairly.</dd>
+          </div>
+        </dl>
       </div>
 
     </div>

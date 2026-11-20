@@ -1,23 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import {
-  FileText,
-  Building2,
-  Calendar,
-  ExternalLink,
-  ShieldCheck,
-  Search,
-  BookOpen
-} from 'lucide-react';
-import SectionHeading from '../components/common/SectionHeading.jsx';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Search, X, Building2, ExternalLink, Landmark, BookOpen, ShieldCheck } from 'lucide-react';
 import DataBadge from '../components/common/DataBadge.jsx';
 import Loading from '../components/common/Loading.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 
 import { getSources } from '../services/researchService.js';
 
+const ANCHORS = [
+  {
+    icon: Landmark,
+    title: 'Pakistan Bureau of Statistics',
+    text: 'Source of the monthly CPI bulletins used to build the deflator series.',
+  },
+  {
+    icon: BookOpen,
+    title: 'University prospectuses',
+    text: 'Published fee schedules and academic catalogues from the Clifton campus.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Trust and endowment records',
+    text: 'Registered charitable trusts that fund tuition and scholarships in Karachi.',
+  },
+];
+
 export const DataSources = () => {
   const [sources, setSources] = useState([]);
   const [search, setSearch] = useState('');
+  const [docTypeFilter, setDocTypeFilter] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,116 +45,154 @@ export const DataSources = () => {
     fetchSources();
   }, []);
 
-  const filtered = sources.filter(s =>
-    s.title?.toLowerCase().includes(search.toLowerCase()) ||
-    s.institution?.toLowerCase().includes(search.toLowerCase()) ||
-    s.documentType?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    return sources.filter((s) => {
+      const q = search.trim().toLowerCase();
+      const matchesSearch = !q ||
+        s.title?.toLowerCase().includes(q) ||
+        s.institution?.toLowerCase().includes(q) ||
+        s.documentType?.toLowerCase().includes(q) ||
+        s.description?.toLowerCase().includes(q);
+      const matchesType = !docTypeFilter || s.documentType === docTypeFilter;
+      return matchesSearch && matchesType;
+    });
+  }, [sources, search, docTypeFilter]);
+
+  const uniqueDocTypes = useMemo(() => {
+    return Array.from(new Set(sources.map(s => s.documentType).filter(Boolean)));
+  }, [sources]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-      
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[#E5E0D6]">
-        <div>
-          <SectionHeading
-            badge="Archival Provenance"
-            title="Statistical Gazettes & Institutional Sources"
-            subtitle="Catalog of verified government publications, university prospectuses, and research monographs grounding the 40-year analysis."
-            className="mb-0"
-          />
-        </div>
-        <div className="w-full md:w-72">
-          <div className="relative">
-            <Search className="w-4 h-4 text-[#788391] absolute left-3 top-3" />
-            <input
-              type="text"
-              placeholder="Search source titles, institutions..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-white border border-[#E5E0D6] rounded-lg pl-9 pr-3 py-2 text-xs text-[#101C2C] focus:ring-2 focus:ring-[#D6AD60]"
-            />
-          </div>
-        </div>
+    <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10 space-y-7">
+
+      <div>
+        <span className="text-xs font-semibold uppercase tracking-wider text-[#0F5C4E]">
+          Sources and archives
+        </span>
+        <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-[#12231F]">
+          Where the numbers come from
+        </h1>
+        <p className="mt-3 text-sm sm:text-base text-[#5C6B66] leading-relaxed max-w-2xl">
+          The project draws on official statistical bulletins, university prospectuses and
+          registered trust records. Each entry below records what it is and who published it.
+        </p>
       </div>
 
-      {/* SOURCES DIRECTORY GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {ANCHORS.map(({ icon: Icon, title, text }) => (
+          <div key={title} className="rounded-xl border border-[#E2E7E2] bg-white p-4">
+            <Icon className="w-4 h-4 text-[#0F5C4E] mb-2" />
+            <h2 className="text-sm font-semibold text-[#12231F]">{title}</h2>
+            <p className="mt-1 text-xs text-[#5C6B66] leading-relaxed">{text}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="space-y-3">
+        <label className="relative block">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-[#8A9A94]" />
+          <input
+            type="text"
+            placeholder="Search a title, institution or document type"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-[#E2E7E2] bg-white pl-9 pr-9 py-2.5 text-sm focus:outline-none focus:border-[#0F5C4E]"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-3 text-[#8A9A94] hover:text-[#12231F]"
+              aria-label="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </label>
+
+        {uniqueDocTypes.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setDocTypeFilter('')}
+              className={`px-3 py-1.5 rounded-lg border text-xs transition-colors ${
+                !docTypeFilter
+                  ? 'border-[#0F5C4E] bg-[#EDF5F2] text-[#0F5C4E] font-semibold'
+                  : 'border-[#E2E7E2] bg-white text-[#5C6B66] hover:bg-[#F6F7F4]'
+              }`}
+            >
+              All ({sources.length})
+            </button>
+            {uniqueDocTypes.map(t => (
+              <button
+                key={t}
+                onClick={() => setDocTypeFilter(t)}
+                className={`px-3 py-1.5 rounded-lg border text-xs transition-colors ${
+                  docTypeFilter === t
+                    ? 'border-[#0F5C4E] bg-[#EDF5F2] text-[#0F5C4E] font-semibold'
+                    : 'border-[#E2E7E2] bg-white text-[#5C6B66] hover:bg-[#F6F7F4]'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* List */}
       {loading ? (
-        <div className="py-20">
-          <Loading text="Loading research source catalogue..." />
-        </div>
+        <div className="py-16"><Loading text="Loading sources..." /></div>
       ) : filtered.length === 0 ? (
         <EmptyState
-          title="No sources match your search"
-          description="Try searching for 'PBS', 'Prospectus', or 'Waqf'."
-          actionText="Clear Search"
-          onAction={() => setSearch('')}
+          title="No sources match"
+          description="Try clearing the search or the document type filter."
+          actionText="Clear filters"
+          onAction={() => { setSearch(''); setDocTypeFilter(''); }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filtered.map((src) => (
-            <div
-              key={src._id}
-              className="bg-white border border-[#E5E0D6] rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <span className="text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded bg-[#F5F1E8] border border-[#E5E0D6] text-[#788391]">
-                    {src.documentType || 'Official Document'}
-                  </span>
-                  <DataBadge status={src.verificationStatus} size="xs" />
-                </div>
-
-                <h3 className="font-serif font-bold text-base text-[#101C2C] leading-snug">
-                  {src.title}
-                </h3>
-
-                <div className="flex items-center gap-2 text-xs text-[#788391] font-mono">
-                  <Building2 className="w-3.5 h-3.5 text-[#D6AD60]" />
-                  <span>{src.institution}</span>
-                </div>
-
-                {src.description && (
-                  <p className="text-xs text-[#788391] leading-relaxed">
-                    {src.description}
-                  </p>
-                )}
+        <div className="divide-y divide-[#E2E7E2] border border-[#E2E7E2] rounded-xl bg-white overflow-hidden">
+          {filtered.map(src => (
+            <article key={src._id} className="p-4 sm:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <h2 className="text-sm font-semibold text-[#12231F] max-w-2xl">{src.title}</h2>
+                <DataBadge status={src.verificationStatus} size="xs" />
               </div>
 
-              <div className="mt-5 pt-3 border-t border-[#E5E0D6] flex items-center justify-between text-xs font-mono">
-                <span className="text-[#788391]">
-                  Published: {src.publicationYear} {src.pageNumber ? `· Page ${src.pageNumber}` : ''}
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#5C6B66]">
+                <span className="inline-flex items-center gap-1">
+                  <Building2 className="w-3.5 h-3.5" />
+                  {src.institution}
                 </span>
-                {src.documentUrl ? (
-                  <a
-                    href={src.documentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#D6AD60] font-semibold hover:underline flex items-center gap-1"
-                  >
-                    <span>View Gazette</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                ) : (
-                  <span className="text-[#788391] italic">Archival Physical Copy</span>
-                )}
+                <span>{src.documentType || 'Document'}</span>
+                <span>{src.publicationYear}</span>
+                {src.pageNumber && <span>p. {src.pageNumber}</span>}
               </div>
-            </div>
+
+              {src.description && (
+                <p className="mt-2 text-sm text-[#5C6B66] leading-relaxed">{src.description}</p>
+              )}
+
+              {src.documentUrl && (
+                <a
+                  href={src.documentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-[#0F5C4E] hover:underline"
+                >
+                  View document
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </article>
           ))}
         </div>
       )}
 
-      {/* PBS CITATION BANNER */}
-      <div className="bg-[#101C2C] text-[#F5F1E8] rounded-xl p-6 border border-[#1A2B40] text-xs leading-relaxed space-y-2">
-        <strong className="text-[#D6AD60] font-mono text-sm block">
-          Primary Deflator Attribution:
-        </strong>
-        <p className="text-[#F5F1E8]/80">
-          Consumer Price Index (CPI) baseline figures are referenced from the official statistical bulletins
-          of the <strong>Pakistan Bureau of Statistics (PBS), Ministry of Planning, Development & Special Initiatives</strong>,
-          Government of Pakistan (Series 2015-16 = 100.0). Historical data before 2015 are linked via standard econometric chaining.
-        </p>
-      </div>
+      <p className="text-xs text-[#5C6B66] leading-relaxed">
+        CPI figures reference the Pakistan Bureau of Statistics series with 2015-16 as the base
+        (2016 = 100). Historical years before that base are linked geometrically. The fee series
+        itself is illustrative, not an official university ledger.
+      </p>
 
     </div>
   );

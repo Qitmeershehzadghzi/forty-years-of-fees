@@ -10,19 +10,19 @@ import {
 
 export const FundingChart = ({ height = 320 }) => {
   const data = [
-    { name: 'Institutional Zakat Funds', value: 42, color: '#23865B' },
-    { name: 'Waqf Perpetual Endowments', value: 28, color: '#D6AD60' },
-    { name: 'Church Education Trusts', value: 16, color: '#426B70' },
-    { name: 'Temple Education Trusts', value: 14, color: '#8C3A3A' },
+    { name: 'Zakat funds', value: 42, color: '#0F5C4E' },
+    { name: 'Waqf endowments', value: 28, color: '#4E8F7F' },
+    { name: 'Church education trusts', value: 16, color: '#A9C9C0' },
+    { name: 'Temple education trusts', value: 14, color: '#B7791F' },
   ];
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const row = payload[0];
       return (
-        <div className="bg-[#101C2C] text-[#F5F1E8] border border-[#1A2B40] p-2.5 rounded-lg text-xs font-mono">
-          <div className="font-bold text-white">{row.name}</div>
-          <div className="text-[#D6AD60] mt-1">Est. Share: {row.value}%</div>
+        <div className="bg-white border border-[#E2E7E2] p-2.5 rounded-lg text-xs shadow-lg">
+          <div className="font-semibold text-[#12231F]">{row.name}</div>
+          <div className="text-[#0F5C4E] mt-1">Estimated share: {row.value}%</div>
         </div>
       );
     }
@@ -37,9 +37,9 @@ export const FundingChart = ({ height = 320 }) => {
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={65}
-            outerRadius={100}
-            paddingAngle={4}
+            innerRadius={60}
+            outerRadius={96}
+            paddingAngle={3}
             dataKey="value"
           >
             {data.map((entry, index) => (
@@ -49,8 +49,8 @@ export const FundingChart = ({ height = 320 }) => {
           <Tooltip content={<CustomTooltip />} />
           <Legend
             verticalAlign="bottom"
-            height={36}
-            wrapperStyle={{ fontSize: 11, fontFamily: 'IBM Plex Mono' }}
+            height={40}
+            wrapperStyle={{ fontSize: 11 }}
           />
         </PieChart>
       </ResponsiveContainer>

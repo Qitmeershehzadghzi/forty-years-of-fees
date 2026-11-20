@@ -22,7 +22,7 @@ All endpoints are prefixed with `/api`.
 
 ## 3. Historical Fees
 - `GET    /api/fees` — Query fees with filters: `programmeId`, `siteId`, `feeType`, `dataType`, `startYear`, `endYear`, `page`, `limit`.
-- `GET    /api/fees/history/:programmeId` — Retrieve 40-year historical trajectory.
+- `GET    /api/fees/history/:programmeId` — Retrieve 41-year historical trajectory.
 - `GET    /api/fees/export` — Stream filtered CSV dataset.
 - `POST   /api/fees` — Insert fee record *(Admin only)*.
 - `PUT    /api/fees/:id` — Update fee amount, verification status *(Admin only)*.
@@ -32,7 +32,7 @@ All endpoints are prefixed with `/api`.
 ---
 
 ## 4. Macroeconomic Inflation (PBS CPI)
-- `GET    /api/inflation` — Retrieve CPI series (1987–2026).
+- `GET    /api/inflation` — Retrieve CPI series (1987–2027).
 - `POST   /api/inflation` — Insert CPI index point *(Admin only)*.
 - `PUT    /api/inflation/:id` — Update CPI reading *(Admin only)*.
 - `DELETE /api/inflation/:id` — Remove CPI reading *(Admin only)*.

@@ -1,4 +1,4 @@
-# Forty Years of Fees (1987–2026)
+# Forty Years of Fees (1987–2027)
 ## Greenwich University, Karachi — Journey 40 Research Platform
 
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green.svg)](https://nodejs.org/)
@@ -9,7 +9,7 @@
 
 An institutional research monograph and interactive financial analytics platform developed for **Greenwich University, Karachi**, as part of its **Journey 40** initiative.
 
-Exploring four decades of higher education fees, purchasing power, PBS inflation, and the changing economics of tertiary education in Karachi from **1987 through 2026**.
+Exploring four decades of higher education fees, purchasing power, PBS inflation, and the changing economics of tertiary education in Karachi from **1987 through 2027**.
 
 ---
 
@@ -22,7 +22,7 @@ Because continuous official historical fee records covering all 40 years are not
 2. **Cross-Programme Divergence:** Disciplinary differences in tuition growth (Computer Science, Business Administration, Software Engineering, Social Sciences).
 3. **Macroeconomic Volatility:** The impact of currency devaluation and inflation spikes (1994–96, 2008–10, 2022–24).
 4. **Educational Philanthropy:** The role of **Zakat**, Islamic **Waqf**, **Church Education Trusts**, and **Temple Trusts** in funding higher education in Karachi.
-5. **AI Data Analyst:** Google Gemini 2.5 integration directly querying database records for academic synthesis.
+5. **AI Data Analyst:** Google Gemini 3.5 Flash-Lite integration querying database records for academic synthesis.
 
 ---
 
@@ -44,7 +44,7 @@ forty-years-of-fees/
 ├── backend/                   # RESTful API Server (Port 5000)
 │   ├── Node.js, Express 5, MongoDB / Mongoose, JWT, Helmet, Rate Limiter
 │   ├── Econometric Calculation Engine (Real fees, CAGR, Inflation)
-│   └── Google Gemini 2.5 Flash SDK Integration
+│   └── Google Gemini 3.5 Flash-Lite SDK Integration
 │
 ├── docs/                      # Technical Documentation
 │   ├── ARCHITECTURE.md
@@ -74,11 +74,11 @@ Create `backend/.env` (or use the configured Atlas cluster):
 PORT=5000
 MONGODB_URI=mongodb+srv://...
 GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-2.5-flash
+GEMINI_MODEL=gemini-3.5-flash-lite
 JWT_SECRET=your_secure_jwt_secret
 ```
 
-### 3. Seed Database (Generates 400 Annual Tuition Records & 40-Year CPI)
+### 3. Seed Database (Generates 410 Annual Tuition Records & 41-Year CPI)
 
 ```bash
 npm run seed
@@ -122,4 +122,4 @@ All generated historical fees are explicitly identified as **Simulated Data / Il
 
 ---
 
-© 1987–2026 Greenwich University, Karachi. Journey 40 Research Platform.
+© 1987–2027 Greenwich University, Karachi. Journey 40 Research Platform.

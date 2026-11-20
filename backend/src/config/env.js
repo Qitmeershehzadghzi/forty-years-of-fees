@@ -17,11 +17,11 @@ export const config = {
   adminUrl: process.env.ADMIN_URL || 'http://localhost:5174',
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
   },
   admin: {
     name: process.env.ADMIN_NAME || 'Super Administrator',
-    email: process.env.ADMIN_EMAIL || 'admin@greenwich.edu.pk',
-    password: process.env.ADMIN_PASSWORD || 'Admin123!40Years',
+    email: process.env.ADMIN_EMAIL || '',
+    password: process.env.ADMIN_PASSWORD || '',
   }
 };

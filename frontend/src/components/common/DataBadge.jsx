@@ -6,34 +6,33 @@ export const DataBadge = ({ status = 'SIMULATED', size = 'sm', className = '' })
 
   const configs = {
     SIMULATED: {
-      label: 'Simulated Data',
+      label: 'Illustrative',
       icon: AlertCircle,
-      classes: 'bg-[#D6AD60]/15 text-[#966b1a] border-[#D6AD60]/30',
-      tooltip: 'Generated illustrative model. Not official Greenwich University records.',
+      classes: 'bg-[#FDF6E7] text-[#8A5A12] border-[#F0E0BC]',
+      tooltip: 'Synthetic, illustrative estimate. Not an official Greenwich University fee record.',
     },
     VERIFIED: {
-      label: 'Verified Record',
+      label: 'Verified',
       icon: CheckCircle2,
-      classes: 'bg-[#23865B]/15 text-[#23865B] border-[#23865B]/30',
-      tooltip: 'Cross-checked against documented institutional archives or PBS gazette.',
+      classes: 'bg-[#EDF5F2] text-[#0F5C4E] border-[#CFE4DD]',
+      tooltip: 'Cross-checked against a documented institutional archive or PBS gazette.',
     },
     PENDING_REVIEW: {
-      label: 'Pending Review',
+      label: 'Pending review',
       icon: Clock,
-      classes: 'bg-amber-50 text-amber-700 border-amber-200',
-      tooltip: 'Submitted record awaiting formal verification committee review.',
+      classes: 'bg-[#F3F6F3] text-[#5C6B66] border-[#E2E7E2]',
+      tooltip: 'Submitted record awaiting verification committee review.',
     },
   };
 
   const current = configs[norm] || configs.SIMULATED;
   const Icon = current.icon;
-
-  const sizeClasses = size === 'xs' ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2.5 py-1';
+  const sizeClasses = size === 'xs' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1';
 
   return (
     <span
       title={current.tooltip}
-      className={`inline-flex items-center gap-1.5 font-mono font-medium rounded-full border ${current.classes} ${sizeClasses} ${className}`}
+      className={`inline-flex items-center gap-1.5 font-medium rounded-full border whitespace-nowrap ${current.classes} ${sizeClasses} ${className}`}
     >
       <Icon className={size === 'xs' ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
       <span>{current.label}</span>

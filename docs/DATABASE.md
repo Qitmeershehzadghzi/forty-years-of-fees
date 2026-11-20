@@ -54,7 +54,7 @@ The persistent store is built on **MongoDB** with strict Mongoose validation, in
 {
   programmeId: ObjectId,   // Ref: Programme
   siteId: ObjectId,        // Ref: Site
-  year: Number,            // 1987–2026
+  year: Number,            // 1987–2027
   feeType: 'Admission Fee' | 'Tuition Fee' | 'Examination Fee' | 'Registration Fee' | 'Other Charges' | 'Total Annual Fee',
   amount: Number,          // In PKR
   currency: "PKR",
@@ -71,7 +71,7 @@ The persistent store is built on **MongoDB** with strict Mongoose validation, in
 ### `InflationIndex`
 ```javascript
 {
-  year: Number,            // 1987–2026
+  year: Number,            // 1987–2027
   cpiValue: Number,        // Strictly positive decimal
   seriesId: String,        // e.g. "PBS-CPI-2015-16"
   baseYear: Number,        // e.g. 2016

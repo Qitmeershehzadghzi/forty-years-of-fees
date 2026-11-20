@@ -10,7 +10,7 @@ import {
   calculateRealFeeGrowth
 } from '../../utils/inflationCalculator.js';
 
-const SYSTEM_INSTRUCTION = `You are an academic financial research analyst specializing in historical education fees, inflation, purchasing power, and statistical data interpretation for Greenwich University, Karachi, Journey 40 initiative (1987–2026).
+const SYSTEM_INSTRUCTION = `You are an academic financial research analyst specializing in historical education fees, inflation, purchasing power, and statistical data interpretation for Greenwich University, Karachi, Journey 40 initiative (1987–2027).
 
 You must use only the supplied structured dataset and calculated metrics.
 Never invent historical fee values, CPI figures, programme details, sources, or statistical findings.
@@ -63,12 +63,12 @@ export const answerChatQuestion = async (question) => {
 
   // Fetch contextual summary from database
   const programmes = await Programme.find({ isActive: true }).select('name code');
-  const [bbaFees, csFees, cpi1987, cpi2026] = await Promise.all([
-    FeeRecord.find({ year: { $in: [1987, 2000, 2010, 2026] }, feeType: 'Total Annual Fee' })
+  const [bbaFees, csFees, cpi1987, cpi2027] = await Promise.all([
+    FeeRecord.find({ year: { $in: [1987, 2000, 2010, 2027] }, feeType: 'Total Annual Fee' })
       .populate('programmeId', 'code name'),
     FeeRecord.countDocuments({ dataType: 'SIMULATED' }),
     InflationIndex.findOne({ year: 1987 }),
-    InflationIndex.findOne({ year: 2026 }),
+    InflationIndex.findOne({ year: 2027 }),
   ]);
 
   const sampleData = bbaFees.map(f => ({
@@ -81,12 +81,12 @@ export const answerChatQuestion = async (question) => {
   const prompt = `User question: "${question}"
 
 Current Dataset Context:
-- Research Period: 1987 to 2026 (40 years)
+- Research Period: 1987 to 2027 (41 years)
 - University: Greenwich University, Karachi (Journey 40 initiative)
 - Configured Programmes: ${programmes.map(p => `${p.name} (${p.code})`).join(', ')}
 - Total simulated fee records in database: 400+ records
 - 1987 Simulated CPI: ${cpi1987?.cpiValue || 10.5} (Base year 2016)
-- 2026 Simulated CPI: ${cpi2026?.cpiValue || 520.0} (Base year 2016)
+- 2027 Simulated CPI: ${cpi2027?.cpiValue || 412.5} (Base year 2016)
 - Milestone Sample Records: ${JSON.stringify(sampleData)}
 
 Please answer the user question based strictly on this research context. Ensure you explicitly disclose that simulated data is being referenced where appropriate.`;
@@ -103,7 +103,7 @@ Please answer the user question based strictly on this research context. Ensure 
 /**
  * Structured analysis of a single academic programme over 40 years.
  */
-export const analyzeProgramme = async (programmeId, baseYear = 2026) => {
+export const analyzeProgramme = async (programmeId, baseYear = 2027) => {
   const programme = await Programme.findById(programmeId);
   if (!programme) throw new Error('Programme not found');
 
@@ -173,7 +173,7 @@ ${JSON.stringify(calculatedContext, null, 2)}
 
 Respond with VALID JSON ONLY matching this exact schema:
 {
-  "title": "${programme.name} (${programme.code}) 40-Year Fee & Inflation Analysis",
+  "title": "${programme.name} (${programme.code}) 41-Year Fee & Inflation Analysis",
   "dataStatus": "${dataStatus}",
   "summary": "Concise 3-4 sentence academic executive summary",
   "keyFindings": [
@@ -229,7 +229,7 @@ Respond with VALID JSON ONLY matching this exact schema:
 /**
  * Structured comparison between multiple programmes.
  */
-export const compareProgrammesAI = async (programmeIds, baseYear = 2026) => {
+export const compareProgrammesAI = async (programmeIds, baseYear = 2027) => {
   const programmes = await Programme.find({ _id: { $in: programmeIds } });
   if (programmes.length < 2) throw new Error('At least two programmes are required for comparison');
 
@@ -248,7 +248,7 @@ export const compareProgrammesAI = async (programmeIds, baseYear = 2026) => {
   const comparisonMetrics = programmes.map(p => {
     const pFees = fees.filter(f => f.programmeId.toString() === p._id.toString());
     const first = pFees[0] || { amount: 0, year: 1987 };
-    const last = pFees[pFees.length - 1] || { amount: 0, year: 2026 };
+    const last = pFees[pFees.length - 1] || { amount: 0, year: 2027 };
     const span = last.year - first.year;
 
     const firstCPI = cpiMap.get(first.year) || 1;
@@ -311,18 +311,18 @@ export const generateExecutiveReport = async () => {
     InflationIndex.countDocuments(),
   ]);
 
-  const prompt = `Prepare an institutional executive research report for Greenwich University Karachi's "Forty Years of Fees: Journey 40 (1987–2026)" research initiative.
+  const prompt = `Prepare an institutional executive research report for Greenwich University Karachi's "Forty Years of Fees: Journey 40 (1987–2027)" research initiative.
 Context:
 - University: Greenwich University, Karachi
 - Initiative: Journey 40
-- Historical timeline: 1987 to 2026 (40 calendar years)
+- Historical timeline: 1987 to 2027 (41 calendar years)
 - Database: ${progCount} programmes, ${feeCount} fee records, ${cpiCount} CPI index records
 - Data Status: Simulated historical demonstration model pending ongoing archival verification
 
 Format the report with:
 - Title
 - Executive Summary
-- Key Decadal Findings (1987-1996, 1997-2006, 2007-2016, 2017-2026)
+- Key Decadal Findings (1987-1996, 1997-2006, 2007-2016, 2017-2027)
 - Inflation & Purchasing-Power Dynamics
 - Educational Philanthropy Context in Karachi (Zakat, Waqf, Christian & Hindu Education Trusts)
 - Archival Data Quality Roadmap

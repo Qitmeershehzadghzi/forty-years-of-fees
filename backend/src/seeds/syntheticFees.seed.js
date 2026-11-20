@@ -1,8 +1,7 @@
 /**
- * Synthetic Historical Fee Generator (1987–2026)
+ * Synthetic Historical Fee Generator (1987–2027)
  * Forty Years of Fees — Greenwich University Journey 40
- * Produces 40 annual fee records for each of the 10 configured programmes (400 records total),
- * along with realistic component breakdowns.
+ * Produces illustrative (not archival) annual fee records for the configured programmes.
  */
 
 // Simple deterministic pseudo-random generator based on seed
@@ -17,31 +16,30 @@ export const generateSyntheticFees = (programmes, siteId) => {
   programmes.forEach((prog, pIndex) => {
     let currentTotal = prog.startingFee;
 
-    for (let year = 1987; year <= 2026; year++) {
+    for (let year = 1987; year <= 2027; year++) {
       const yearOffset = year - 1987;
       
       if (yearOffset > 0) {
-        // Deterministic annual adjustment: baseline growth + seeded variation
-        const variation = (pseudoRandom(pIndex * 100 + yearOffset) - 0.5) * 0.04; // +/- 2%
-        // Higher inflation periods in 1993-1996 and 2022-2024
-        let macroMultiplier = 1.0;
-        if (year >= 1993 && year <= 1996) macroMultiplier = 1.15;
-        if (year >= 2008 && year <= 2010) macroMultiplier = 1.12;
-        if (year >= 2022 && year <= 2024) macroMultiplier = 1.22;
-        if (year >= 2001 && year <= 2004) macroMultiplier = 0.92; // Slower growth era
-
-        const annualRate = (prog.baseGrowthRate + variation) * macroMultiplier;
+        // Distinct programme-level growth plus shared economic cycles and deterministic noise.
+        const variation = (pseudoRandom(pIndex * 100 + yearOffset) - 0.5) * 0.035;
+        let annualRate = prog.baseGrowthRate + variation;
+        if (year >= 1993 && year <= 1996) annualRate += 0.035;
+        if (year >= 2008 && year <= 2010) annualRate += 0.025;
+        if (year >= 2001 && year <= 2004) annualRate -= 0.025;
+        if (year >= 2022 && year <= 2024) annualRate += 0.055;
+        annualRate = Math.max(0.035, annualRate);
         currentTotal = currentTotal * (1 + annualRate);
       }
 
-      // Round to nearest 500 PKR for neat institutional fee figures
-      const roundedTotal = Math.round(currentTotal / 500) * 500;
+      // Programme-specific fee schedules do not share one tuition/component mix.
+      const roundedTotal = Math.max(500, Math.round(currentTotal / 250) * 250);
+      const mix = prog.feeMix || { tuition: 0.72, admission: 0.10, examination: 0.09, registration: 0.04 };
 
-      // Realistic component breakdown
-      const tuitionFee = Math.round((roundedTotal * 0.70) / 100) * 100;
-      const admissionFee = Math.round((roundedTotal * 0.12) / 100) * 100;
-      const examinationFee = Math.round((roundedTotal * 0.08) / 100) * 100;
-      const registrationFee = Math.round((roundedTotal * 0.05) / 100) * 100;
+      // Illustrative component breakdown using this programme's own scenario mix.
+      const tuitionFee = Math.round((roundedTotal * mix.tuition) / 50) * 50;
+      const admissionFee = Math.round((roundedTotal * mix.admission) / 50) * 50;
+      const examinationFee = Math.round((roundedTotal * mix.examination) / 50) * 50;
+      const registrationFee = Math.round((roundedTotal * mix.registration) / 50) * 50;
       const otherCharges = roundedTotal - (tuitionFee + admissionFee + examinationFee + registrationFee);
 
       const feeItems = [
@@ -63,7 +61,7 @@ export const generateSyntheticFees = (programmes, siteId) => {
           currency: 'PKR',
           dataType: 'SIMULATED',
           verificationStatus: 'SIMULATED',
-          notes: 'Illustrative simulated historical fee for Greenwich University Journey 40 research initiative.',
+          notes: `Synthetic estimate for ${prog.code}, generated from its programme-specific baseline and growth profile. Not an archival or published Greenwich University fee.`,
         });
       });
     }

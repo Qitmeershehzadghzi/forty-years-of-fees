@@ -1,6 +1,6 @@
 # Application Architecture — Forty Years of Fees
 
-## Greenwich University, Karachi (Journey 40: 1987–2026)
+## Greenwich University, Karachi (Journey 40: 1987–2027)
 
 This document outlines the three-tier monorepo architecture powering the **Forty Years of Fees** research and financial analytics platform.
 
@@ -22,7 +22,7 @@ forty-years-of-fees/
 ├── backend/                   # RESTful API Server (Port 5000)
 │   ├── Node.js, Express 5, MongoDB / Mongoose, JWT, Helmet, Rate Limiter
 │   ├── Econometric Calculation Engine (Real fees, CAGR, Inflation)
-│   └── Google Gemini 2.5 Flash integration via Official SDK
+│   └── Google Gemini 3.5 Flash-Lite integration via Official SDK
 │
 └── docs/                      # Technical & Econometric Documentation
 ```
@@ -65,7 +65,7 @@ Visitor / Researcher / Admin
 │     MongoDB Atlas       │       │    Google Gemini AI     │
 │   - Programmes (10)     │       │  - Zero Hallucination   │
 │   - 400 Annual Fees     │       │  - Structured JSON      │
-│   - 40-Year PBS CPI     │       │  - Econometric Prompts  │
+│   - 41-Year PBS CPI     │       │  - Econometric Prompts  │
 │   - Audit Logs          │       └─────────────────────────┘
 └─────────────────────────┘
 ```

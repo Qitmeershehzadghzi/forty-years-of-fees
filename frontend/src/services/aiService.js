@@ -5,12 +5,12 @@ export const askAIChat = async (question) => {
   return res.data;
 };
 
-export const analyzeProgrammeAI = async (programmeId, baseYear = 2026) => {
+export const analyzeProgrammeAI = async (programmeId, baseYear = 2027) => {
   const res = await api.post('/ai/analyze-programme', { programmeId, baseYear });
   return res.data;
 };
 
-export const compareProgrammesAI = async (programmeIds, baseYear = 2026) => {
+export const compareProgrammesAI = async (programmeIds, baseYear = 2027) => {
   const res = await api.post('/ai/compare-programmes', { programmeIds, baseYear });
   return res.data;
 };

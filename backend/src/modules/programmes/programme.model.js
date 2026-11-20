@@ -30,7 +30,7 @@ const programmeSchema = new mongoose.Schema({
   lastOfferedYear: {
     type: Number,
     required: true,
-    default: 2026,
+    default: 2027,
   },
   isActive: {
     type: Boolean,

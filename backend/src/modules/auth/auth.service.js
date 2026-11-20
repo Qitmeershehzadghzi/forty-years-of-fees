@@ -3,7 +3,8 @@ import { User } from '../users/user.model.js';
 import { config } from '../../config/env.js';
 
 export const loginUser = async ({ email, password }) => {
-  const user = await User.findOne({ email: email.toLowerCase() });
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await User.findOne({ email: normalizedEmail });
   if (!user) {
     throw new Error('Invalid email or password');
   }

@@ -11,36 +11,31 @@ export const StatCard = ({
   className = '',
 }) => {
   return (
-    <div className={`bg-white border border-[#E5E0D6] rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden ${className}`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-semibold tracking-wider text-[#788391] uppercase">
-            {title}
-          </p>
-          <div className="mt-2 text-2xl lg:text-3xl font-bold font-mono text-[#101C2C]">
-            {value}
-          </div>
-        </div>
-        {Icon && (
-          <div className="p-2.5 bg-[#F5F1E8] text-[#101C2C] rounded-lg border border-[#E5E0D6]/60">
-            <Icon className="w-5 h-5 text-[#D6AD60]" />
-          </div>
-        )}
+    <div className={`bg-white border border-[#E2E7E2] rounded-xl p-5 ${className}`}>
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] font-semibold tracking-wide text-[#5C6B66] uppercase">
+          {title}
+        </p>
+        {Icon && <Icon className="w-4 h-4 text-[#8A9A94] shrink-0" />}
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs">
-        {subtext && <span className="text-[#788391]">{subtext}</span>}
+      <div className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-[#12231F] tabular-nums">
+        {value}
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#5C6B66]">
+        {subtext && <span>{subtext}</span>}
         {badge && (
-          <span className={`px-2 py-0.5 rounded text-[11px] font-medium font-mono ${
+          <span className={`px-2 py-0.5 rounded-full font-medium ${
             badgeType === 'verified'
-              ? 'bg-[#23865B]/10 text-[#23865B] border border-[#23865B]/20'
-              : 'bg-[#D6AD60]/15 text-[#966b1a] border border-[#D6AD60]/30'
+              ? 'bg-[#EDF5F2] text-[#0F5C4E]'
+              : 'bg-[#FDF6E7] text-[#8A5A12]'
           }`}>
             {badge}
           </span>
         )}
         {trend && (
-          <span className={`font-mono font-medium ${trend.startsWith('+') ? 'text-[#C75A5A]' : 'text-[#23865B]'}`}>
+          <span className={`font-semibold ${trend.startsWith('+') ? 'text-[#B42318]' : 'text-[#0F5C4E]'}`}>
             {trend}
           </span>
         )}

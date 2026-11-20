@@ -1,27 +1,27 @@
 export const PROGRAMME_COLORS = {
-  BBA: '#101C2C', // Deep Navy
-  BSCS: '#D6AD60', // Academic Gold
-  BSSE: '#426B70', // Teal
-  BSIT: '#23865B', // Forest Green
-  MBA: '#8C3A3A', // Burgundy
-  BSAF: '#4E5D6C', // Slate
-  BSMS: '#B87333', // Copper
-  BSPSY: '#6B4E71', // Plum
-  BSIR: '#2B547E', // Dark Blue
-  BSENG: '#788391', // Muted Grey
+  BBA: '#0F5C4E',
+  BSCS: '#2F7F6F',
+  BSSE: '#6AA393',
+  BSIT: '#B7791F',
+  MBA: '#8C5A2B',
+  BSAF: '#3B5D7A',
+  BSMS: '#A15C4A',
+  BSPSY: '#6B4E71',
+  BSIR: '#4E6B57',
+  BSENG: '#64748B',
 };
 
 export const COLOR_PALETTE = [
-  '#101C2C',
-  '#D6AD60',
-  '#426B70',
-  '#23865B',
-  '#8C3A3A',
-  '#4E5D6C',
-  '#B87333',
+  '#0F5C4E',
+  '#2F7F6F',
+  '#6AA393',
+  '#B7791F',
+  '#8C5A2B',
+  '#3B5D7A',
+  '#A15C4A',
   '#6B4E71',
-  '#2B547E',
-  '#788391',
+  '#4E6B57',
+  '#64748B',
 ];
 
 export const getProgrammeColor = (code, index = 0) => {

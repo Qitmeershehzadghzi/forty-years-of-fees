@@ -1,338 +1,288 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Download,
-  Filter,
-  Search,
-  BookOpen,
-  Calendar,
-  Layers,
-  FileSpreadsheet,
-  ChevronLeft,
-  ChevronRight,
-  ShieldAlert
-} from 'lucide-react';
-import SectionHeading from '../components/common/SectionHeading.jsx';
-import Button from '../components/common/Button.jsx';
-import DataBadge from '../components/common/DataBadge.jsx';
-import Loading from '../components/common/Loading.jsx';
-import EmptyState from '../components/common/EmptyState.jsx';
-import ErrorState from '../components/common/ErrorState.jsx';
-
+import { AlertTriangle, Download, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { getFees, exportFeesCSV } from '../services/feeService.js';
 import { getProgrammes } from '../services/programmeService.js';
 import { formatPKR } from '../utils/currencyFormatter.js';
+import DataBadge from '../components/common/DataBadge.jsx';
+import Loading from '../components/common/Loading.jsx';
+import ErrorState from '../components/common/ErrorState.jsx';
 
-export const HistoricalFees = () => {
+const START_YEAR = 1987;
+const END_YEAR = 2027;
+
+const fieldClass = 'w-full rounded-lg border border-[#E2E7E2] bg-white px-3 py-2.5 text-sm text-[#12231F] focus:outline-none focus:border-[#0F5C4E] focus:ring-2 focus:ring-[#0F5C4E]/20';
+
+export default function HistoricalFees() {
   const [programmes, setProgrammes] = useState([]);
-  const [selectedProgramme, setSelectedProgramme] = useState('');
+  const [programmeId, setProgrammeId] = useState('');
   const [feeType, setFeeType] = useState('Total Annual Fee');
   const [dataType, setDataType] = useState('');
-  const [startYear, setStartYear] = useState(1987);
-  const [endYear, setEndYear] = useState(2026);
+  const [startYear, setStartYear] = useState(START_YEAR);
+  const [endYear, setEndYear] = useState(END_YEAR);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-
-  const [feeRecords, setFeeRecords] = useState([]);
-  const [paginationMeta, setPaginationMeta] = useState(null);
+  const [records, setRecords] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load programmes on mount
   useEffect(() => {
-    async function fetchProgrammes() {
-      try {
-        const progs = await getProgrammes();
-        setProgrammes(progs);
-      } catch (err) {
-        console.error('Failed to load programmes:', err);
-      }
-    }
-    fetchProgrammes();
+    getProgrammes().then(setProgrammes).catch(() => {});
   }, []);
 
-  // Fetch fees when filters change
-  const fetchFees = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const params = {
-        page,
-        limit: 20,
-        startYear,
-        endYear,
-      };
-      if (selectedProgramme) params.programmeId = selectedProgramme;
-      if (feeType) params.feeType = feeType;
-      if (dataType) params.dataType = dataType;
-
-      const res = await getFees(params);
-      setFeeRecords(res.data || []);
-      setPaginationMeta(res.meta || null);
-    } catch (err) {
-      setError(err.message || 'Error loading fee records');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchFees();
-  }, [selectedProgramme, feeType, dataType, startYear, endYear, page]);
+    let active = true;
+    setLoading(true);
+    setError(null);
 
-  const handleExportCSV = () => {
-    exportFeesCSV({
-      programmeId: selectedProgramme,
-      feeType,
-      dataType,
-      startYear,
-      endYear,
-    });
+    const params = { page, limit: 20, startYear, endYear };
+    if (programmeId) params.programmeId = programmeId;
+    if (feeType) params.feeType = feeType;
+    if (dataType) params.dataType = dataType;
+
+    getFees(params)
+      .then(res => {
+        if (!active) return;
+        setRecords(res.data || []);
+        setMeta(res.meta || null);
+      })
+      .catch(err => { if (active) setError(err.message || 'Fee records could not be loaded.'); })
+      .finally(() => { if (active) setLoading(false); });
+
+    return () => { active = false; };
+  }, [programmeId, feeType, dataType, startYear, endYear, page]);
+
+  const shown = records.filter(record => {
+    const q = search.trim().toLowerCase();
+    return !q || [record.programmeId?.code, record.programmeId?.name, record.year, record.feeType]
+      .some(value => String(value || '').toLowerCase().includes(q));
+  });
+
+  const reset = () => {
+    setProgrammeId('');
+    setFeeType('Total Annual Fee');
+    setDataType('');
+    setStartYear(START_YEAR);
+    setEndYear(END_YEAR);
+    setSearch('');
+    setPage(1);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      
-      {/* HEADER & CITATION NOTICE */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[#E5E0D6]">
-        <div>
-          <SectionHeading
-            badge="Historical Archive (1987–2026)"
-            title="University Fee Schedule Archive"
-            subtitle="Searchable year-by-year fee records across four decades for Greenwich University academic programmes."
-            className="mb-0"
-          />
-        </div>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="md"
-            icon={Download}
-            onClick={handleExportCSV}
-          >
-            Export Historical CSV
-          </Button>
-        </div>
-      </div>
+    <main className="pb-8">
 
-      {/* DISCLOSURE BANNER */}
-      <div className="bg-[#D6AD60]/10 border border-[#D6AD60]/30 rounded-xl p-4 flex items-start gap-3 text-xs text-[#966b1a]">
-        <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <strong className="font-bold uppercase tracking-wider font-mono">
-            Research Dataset Classification
-          </strong>
-          <p className="text-[#101C2C]/80 leading-relaxed">
-            All records tagged <span className="font-mono font-semibold">SIMULATED</span> represent econometric model estimates
-            benchmarked to starting 1987 tuition figures. Verified archival records are indicated with green badges.
+      {/* Header */}
+      <section className="bg-white border-b border-[#E2E7E2]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <span className="text-xs font-semibold uppercase tracking-wider text-[#0F5C4E]">
+            Greenwich University · Journey 40
+          </span>
+          <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-[#12231F]">
+            Fee history, 1987–2027
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm sm:text-base text-[#5C6B66] leading-relaxed">
+            Browse illustrative annual fees for every programme and year. Filter by programme,
+            fee item or record type, then download the rows you need.
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* FILTER CONTROLS PANEL */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl p-5 shadow-sm space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          
-          {/* Programme Filter */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Programme
-            </label>
-            <select
-              value={selectedProgramme}
-              onChange={(e) => { setSelectedProgramme(e.target.value); setPage(1); }}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-medium text-[#101C2C] focus:ring-2 focus:ring-[#D6AD60]"
-            >
-              <option value="">All 10 Programmes</option>
-              {programmes.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.code} — {p.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      <div className="mx-auto max-w-7xl space-y-5 px-4 py-6 sm:px-6 lg:px-8">
 
-          {/* Fee Type Filter */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Fee Category
-            </label>
-            <select
-              value={feeType}
-              onChange={(e) => { setFeeType(e.target.value); setPage(1); }}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-medium text-[#101C2C] focus:ring-2 focus:ring-[#D6AD60]"
-            >
-              <option value="">All Categories</option>
-              <option value="Total Annual Fee">Total Annual Fee</option>
-              <option value="Tuition Fee">Tuition Fee</option>
-              <option value="Admission Fee">Admission Fee</option>
-              <option value="Examination Fee">Examination Fee</option>
-              <option value="Registration Fee">Registration Fee</option>
-              <option value="Other Charges">Other Charges</option>
-            </select>
-          </div>
-
-          {/* Data Type Filter */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              Verification Status
-            </label>
-            <select
-              value={dataType}
-              onChange={(e) => { setDataType(e.target.value); setPage(1); }}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-medium text-[#101C2C] focus:ring-2 focus:ring-[#D6AD60]"
-            >
-              <option value="">All Records (Simulated & Verified)</option>
-              <option value="SIMULATED">Simulated Only</option>
-              <option value="VERIFIED">Verified Only</option>
-            </select>
-          </div>
-
-          {/* Start Year */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              From Year
-            </label>
-            <input
-              type="number"
-              min="1987"
-              max="2026"
-              value={startYear}
-              onChange={(e) => { setStartYear(Number(e.target.value)); setPage(1); }}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-mono font-medium text-[#101C2C]"
-            />
-          </div>
-
-          {/* End Year */}
-          <div>
-            <label className="block text-xs font-semibold text-[#788391] uppercase font-mono mb-1.5">
-              To Year
-            </label>
-            <input
-              type="number"
-              min="1987"
-              max="2026"
-              value={endYear}
-              onChange={(e) => { setEndYear(Number(e.target.value)); setPage(1); }}
-              className="w-full bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-mono font-medium text-[#101C2C]"
-            />
-          </div>
-
+        {/* Data notice */}
+        <div className="flex gap-3 rounded-xl border border-[#F0E0BC] bg-[#FDF6E7] p-4">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[#B7791F]" />
+          <p className="text-sm text-[#6B5A32] leading-relaxed">
+            <span className="font-semibold text-[#12231F]">Dummy figures.</span>{' '}
+            These fees are generated for research and teaching. They are not actual Greenwich
+            University fee records and should not be used for billing or admission decisions.
+          </p>
         </div>
-      </div>
 
-      {/* DATA TABLE */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl shadow-sm overflow-hidden">
-        {loading ? (
-          <div className="py-20">
-            <Loading text="Querying historical fee database..." />
+        {/* Filters */}
+        <section className="rounded-xl border border-[#E2E7E2] bg-white p-4 sm:p-5" aria-label="Fee filters">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-[#12231F]">Filter records</h2>
+            <button
+              onClick={reset}
+              className="text-xs font-semibold text-[#0F5C4E] hover:underline"
+            >
+              Reset filters
+            </button>
           </div>
-        ) : error ? (
-          <ErrorState message={error} onRetry={fetchFees} />
-        ) : feeRecords.length === 0 ? (
-          <EmptyState
-            title="No matching historical records"
-            description="Try expanding the year range or selecting a different fee component filter."
-            actionText="Reset Filters"
-            onAction={() => {
-              setSelectedProgramme('');
-              setFeeType('Total Annual Fee');
-              setDataType('');
-              setStartYear(1987);
-              setEndYear(2026);
-              setPage(1);
-            }}
-          />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-[#101C2C] text-[#F5F1E8] font-mono uppercase tracking-wider text-[11px] border-b border-[#1A2B40]">
-                  <th className="py-3.5 px-4 font-semibold">Academic Year</th>
-                  <th className="py-3.5 px-4 font-semibold">Programme</th>
-                  <th className="py-3.5 px-4 font-semibold">Degree</th>
-                  <th className="py-3.5 px-4 font-semibold">Fee Category</th>
-                  <th className="py-3.5 px-4 font-semibold">Amount (PKR)</th>
-                  <th className="py-3.5 px-4 font-semibold">Classification</th>
-                  <th className="py-3.5 px-4 font-semibold">Campus Site</th>
-                  <th className="py-3.5 px-4 font-semibold">Methodology Note</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E5E0D6]">
-                {feeRecords.map((record) => (
-                  <tr key={record._id} className="hover:bg-[#F5F1E8]/50 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-[#101C2C]">
-                      {record.year}
-                    </td>
-                    <td className="py-3 px-4 font-medium text-[#101C2C]">
-                      <span className="font-bold text-[#D6AD60] font-mono mr-1.5">
-                        {record.programmeId?.code}
-                      </span>
-                      {record.programmeId?.name}
-                    </td>
-                    <td className="py-3 px-4 text-[#788391]">
-                      {record.programmeId?.degreeLevel || 'Undergraduate'}
-                    </td>
-                    <td className="py-3 px-4 text-[#101C2C]">
-                      <span className="px-2 py-0.5 rounded bg-[#F5F1E8] border border-[#E5E0D6] font-mono text-[11px]">
-                        {record.feeType}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 font-mono font-bold text-[#101C2C] text-sm">
-                      {formatPKR(record.amount)}
-                    </td>
-                    <td className="py-3 px-4">
-                      <DataBadge status={record.dataType} size="xs" />
-                    </td>
-                    <td className="py-3 px-4 text-[#788391] text-[11px]">
-                      {record.siteId?.name || 'Clifton Block 1'}
-                    </td>
-                    <td className="py-3 px-4 text-[#788391] text-[11px] max-w-xs truncate" title={record.notes}>
-                      {record.notes}
-                    </td>
-                  </tr>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <label className="text-xs font-medium text-[#5C6B66] lg:col-span-2">
+              Programme
+              <select
+                className={`${fieldClass} mt-1`}
+                value={programmeId}
+                onChange={e => { setProgrammeId(e.target.value); setPage(1); }}
+              >
+                <option value="">All programmes</option>
+                {programmes.map(p => (
+                  <option key={p._id} value={p._id}>{p.code} · {p.name}</option>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              </select>
+            </label>
 
-        {/* PAGINATION FOOTER */}
-        {paginationMeta && paginationMeta.totalPages > 1 && (
-          <div className="p-4 bg-[#F5F1E8]/60 border-t border-[#E5E0D6] flex items-center justify-between text-xs font-mono">
-            <span className="text-[#788391]">
-              Showing {((paginationMeta.page - 1) * paginationMeta.limit) + 1} to{' '}
-              {Math.min(paginationMeta.page * paginationMeta.limit, paginationMeta.total)} of{' '}
-              <strong>{paginationMeta.total}</strong> records
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={ChevronLeft}
-                disabled={!paginationMeta.hasPrev}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+            <label className="text-xs font-medium text-[#5C6B66]">
+              Fee item
+              <select
+                className={`${fieldClass} mt-1`}
+                value={feeType}
+                onChange={e => { setFeeType(e.target.value); setPage(1); }}
               >
-                Previous
-              </Button>
-              <span className="px-3 py-1 font-bold text-[#101C2C]">
-                Page {paginationMeta.page} of {paginationMeta.totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                icon={ChevronRight}
-                disabled={!paginationMeta.hasNext}
-                onClick={() => setPage(p => p + 1)}
+                <option>Total Annual Fee</option>
+                <option>Tuition Fee</option>
+                <option>Admission Fee</option>
+                <option>Examination Fee</option>
+                <option>Registration Fee</option>
+                <option>Other Charges</option>
+                <option value="">All items</option>
+              </select>
+            </label>
+
+            <label className="text-xs font-medium text-[#5C6B66]">
+              Record type
+              <select
+                className={`${fieldClass} mt-1`}
+                value={dataType}
+                onChange={e => { setDataType(e.target.value); setPage(1); }}
               >
-                Next
-              </Button>
+                <option value="">All records</option>
+                <option value="SIMULATED">Illustrative</option>
+                <option value="VERIFIED">Verified</option>
+              </select>
+            </label>
+
+            <div className="grid grid-cols-2 gap-3 lg:col-span-1">
+              <label className="text-xs font-medium text-[#5C6B66]">
+                From
+                <input
+                  className={`${fieldClass} mt-1`}
+                  type="number"
+                  min={START_YEAR}
+                  max={END_YEAR}
+                  value={startYear}
+                  onChange={e => { setStartYear(Number(e.target.value)); setPage(1); }}
+                />
+              </label>
+              <label className="text-xs font-medium text-[#5C6B66]">
+                To
+                <input
+                  className={`${fieldClass} mt-1`}
+                  type="number"
+                  min={START_YEAR}
+                  max={END_YEAR}
+                  value={endYear}
+                  onChange={e => { setEndYear(Number(e.target.value)); setPage(1); }}
+                />
+              </label>
             </div>
           </div>
-        )}
+
+          <label className="relative mt-3 block sm:max-w-sm">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-[#8A9A94]" />
+            <span className="sr-only">Search this page</span>
+            <input
+              className={`${fieldClass} pl-9`}
+              placeholder="Search this page by programme or year"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </label>
+        </section>
+
+        {/* Table */}
+        <section className="overflow-hidden rounded-xl border border-[#E2E7E2] bg-white" aria-label="Fee records">
+          <div className="flex flex-col gap-3 border-b border-[#E2E7E2] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+            <div>
+              <h2 className="text-sm font-semibold text-[#12231F]">Annual fee records</h2>
+              <p className="mt-0.5 text-xs text-[#5C6B66]">
+                {meta?.total != null ? meta.total.toLocaleString() : shown.length} matching records
+              </p>
+            </div>
+            <button
+              onClick={() => exportFeesCSV({ programmeId, feeType, dataType, startYear, endYear })}
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-[#0F5C4E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0B443A] transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              Download CSV
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="py-16"><Loading text="Loading fee records..." /></div>
+          ) : error ? (
+            <ErrorState message={error} />
+          ) : shown.length === 0 ? (
+            <div className="px-6 py-14 text-center">
+              <p className="font-medium text-[#12231F]">No matching records</p>
+              <p className="mt-1 text-sm text-[#5C6B66]">Try another programme, year range or search.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[680px] text-left text-sm">
+                <thead className="bg-[#F6F7F4] text-xs uppercase tracking-wide text-[#5C6B66]">
+                  <tr>
+                    <th className="px-5 py-3 font-semibold">Year</th>
+                    <th className="px-5 py-3 font-semibold">Programme</th>
+                    <th className="px-5 py-3 font-semibold">Fee item</th>
+                    <th className="px-5 py-3 text-right font-semibold">Amount (PKR)</th>
+                    <th className="px-5 py-3 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#EEF1EE]">
+                  {shown.map(record => (
+                    <tr key={record._id} className="hover:bg-[#FAFBFA]">
+                      <td className="whitespace-nowrap px-5 py-3.5 font-semibold tabular-nums text-[#12231F]">
+                        {record.year}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <span className="mr-2 inline-flex rounded bg-[#EDF5F2] px-1.5 py-0.5 text-[11px] font-semibold text-[#0F5C4E]">
+                          {record.programmeId?.code || '—'}
+                        </span>
+                        <span className="text-[#12231F]">{record.programmeId?.name || 'Programme'}</span>
+                      </td>
+                      <td className="px-5 py-3.5 text-[#5C6B66]">{record.feeType}</td>
+                      <td className="whitespace-nowrap px-5 py-3.5 text-right font-semibold tabular-nums text-[#12231F]">
+                        {formatPKR(record.amount)}
+                      </td>
+                      <td className="px-5 py-3.5"><DataBadge status={record.dataType} size="xs" /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {meta?.totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-[#E2E7E2] px-5 py-3.5">
+              <span className="text-sm text-[#5C6B66]">Page {meta.page} of {meta.totalPages}</span>
+              <div className="flex gap-2">
+                <button
+                  aria-label="Previous page"
+                  disabled={!meta.hasPrev}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-[#E2E7E2] text-[#12231F] hover:bg-[#F6F7F4] disabled:opacity-40"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  aria-label="Next page"
+                  disabled={!meta.hasNext}
+                  onClick={() => setPage(p => p + 1)}
+                  className="grid h-9 w-9 place-items-center rounded-lg border border-[#E2E7E2] text-[#12231F] hover:bg-[#F6F7F4] disabled:opacity-40"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
       </div>
-
-    </div>
+    </main>
   );
-};
-
-export default HistoricalFees;
+}

@@ -21,7 +21,7 @@ export const handleAnalyzeProgramme = async (req, res, next) => {
     if (!programmeId) {
       return errorResponse(res, 'programmeId is required', 400);
     }
-    const result = await aiService.analyzeProgramme(programmeId, baseYear ? Number(baseYear) : 2026);
+    const result = await aiService.analyzeProgramme(programmeId, baseYear ? Number(baseYear) : 2027);
     return successResponse(res, result, 'Programme analysis generated');
   } catch (err) {
     next(err);
@@ -34,7 +34,7 @@ export const handleCompareProgrammes = async (req, res, next) => {
     if (!Array.isArray(programmeIds) || programmeIds.length < 2) {
       return errorResponse(res, 'programmeIds must be an array of at least 2 programme IDs', 400);
     }
-    const result = await aiService.compareProgrammesAI(programmeIds, baseYear ? Number(baseYear) : 2026);
+    const result = await aiService.compareProgrammesAI(programmeIds, baseYear ? Number(baseYear) : 2027);
     return successResponse(res, result, 'Comparative analysis generated');
   } catch (err) {
     next(err);

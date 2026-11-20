@@ -3,11 +3,11 @@ import { Calendar } from 'lucide-react';
 
 export const YearRangeFilter = ({
   startYear = 1987,
-  endYear = 2026,
+  endYear = 2027,
   onStartChange,
   onEndChange,
   minYear = 1987,
-  maxYear = 2026,
+  maxYear = 2027,
   className = '',
 }) => {
   const years = [];

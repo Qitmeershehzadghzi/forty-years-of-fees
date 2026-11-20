@@ -1,18 +1,16 @@
 import React from 'react';
 
-export const Loading = ({ text = 'Loading historical analytics...', fullScreen = false }) => {
+export const Loading = ({ text = 'Loading data...', fullScreen = false }) => {
   const content = (
-    <div className="flex flex-col items-center justify-center p-8 space-y-3">
-      <div className="w-10 h-10 border-3 border-[#D6AD60]/20 border-t-[#D6AD60] rounded-full animate-spin"></div>
-      <p className="text-sm font-medium text-[#788391] font-mono tracking-wide">
-        {text}
-      </p>
+    <div className="flex flex-col items-center justify-center gap-3 p-8">
+      <div className="w-8 h-8 border-2 border-[#CFE4DD] border-t-[#0F5C4E] rounded-full animate-spin" />
+      <p className="text-sm text-[#5C6B66]">{text}</p>
     </div>
   );
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-[#F5F1E8]/80 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-[#F6F7F4]/85 backdrop-blur-sm z-50 flex items-center justify-center">
         {content}
       </div>
     );

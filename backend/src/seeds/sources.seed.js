@@ -5,9 +5,9 @@
 
 export const INITIAL_SOURCES = [
   {
-    title: 'Monthly Consumer Price Index Bulletin (1987–2026 Reference Series)',
+    title: 'Monthly Consumer Price Index Bulletin (1987–2027 Reference Series)',
     institution: 'Pakistan Bureau of Statistics (PBS), Government of Pakistan',
-    publicationYear: 2026,
+    publicationYear: 2027,
     documentType: 'PBS Statistical Bulletin',
     documentUrl: 'https://www.pbs.gov.pk/cpi',
     pageNumber: 1,
@@ -15,9 +15,9 @@ export const INITIAL_SOURCES = [
     verificationStatus: 'VERIFIED',
   },
   {
-    title: 'Greenwich University Academic Prospectus & Historical Archive 1987–2026',
+    title: 'Greenwich University Academic Prospectus & Historical Archive 1987–2027',
     institution: 'Greenwich University Karachi',
-    publicationYear: 2026,
+    publicationYear: 2027,
     documentType: 'Prospectus',
     documentUrl: 'https://www.greenwich.edu.pk/admissions',
     pageNumber: 12,
@@ -56,7 +56,7 @@ export const INITIAL_RESEARCH_NOTES = [
 In the context of Karachi higher education:
 1. Eligibility: Deserving Muslim undergraduate students (Mustahiqeen) receive direct tuition fee remissions from university Zakat accounts.
 2. Structure: Independent Zakat committees at university campuses review student financial circumstances, household dependency ratios, and income statements.
-3. Impact: Across a 40-year timeframe (1987–2026), institutional Zakat has increasingly cushioned students against steep currency devaluation and nominal fee escalation, serving as an indispensable buffer against student dropout in private institutions.`,
+3. Impact: Across a four-decade timeframe (1987–2027), institutional Zakat has increasingly cushioned students against steep currency devaluation and nominal fee escalation, serving as an indispensable buffer against student dropout in private institutions.`,
     status: 'PUBLISHED',
   },
   {

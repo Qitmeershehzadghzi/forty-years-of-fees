@@ -5,7 +5,15 @@ import {
   FileText,
   Scale,
   Send,
-  AlertCircle
+  AlertCircle,
+  Copy,
+  Check,
+  TrendingUp,
+  GraduationCap,
+  Download,
+  Terminal,
+  Cpu,
+  Layers
 } from 'lucide-react';
 import {
   askAIChat,
@@ -20,6 +28,7 @@ export const AIResearchAssistant = () => {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -28,23 +37,31 @@ export const AIResearchAssistant = () => {
         setProgrammes(progs);
         if (progs.length > 0) setSelectedProg(progs[0]._id);
       } catch (err) {
-        console.error(err);
+        console.error('Failed to load programmes:', err);
       }
     }
     load();
   }, []);
 
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const handleCustomQuery = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
     if (!prompt.trim() || loading) return;
     setLoading(true);
     setResponse(null);
     try {
       const res = await askAIChat(prompt);
       setResponse({
-        title: `Query: "${prompt}"`,
+        title: `Analytical Query: "${prompt}"`,
         content: res.answer,
         status: res.dataStatus || 'SIMULATED',
+        timestamp: new Date().toLocaleTimeString(),
+        model: 'Gemini 2.5 Flash / Econometric RAG'
       });
     } catch (err) {
       alert(`AI Query Error: ${err.message}`);
@@ -58,12 +75,15 @@ export const AIResearchAssistant = () => {
     setLoading(true);
     setResponse(null);
     try {
-      const res = await analyzeProgrammeAI(selectedProg, 2026);
+      const res = await analyzeProgrammeAI(selectedProg, 2027);
+      const progObj = programmes.find(p => p._id === selectedProg);
       setResponse({
-        title: res.title,
-        content: JSON.stringify(res, null, 2),
-        parsed: res,
-        status: res.dataStatus,
+        title: `Econometric Deep Dive: ${progObj?.code || ''} — ${progObj?.name || 'Programme'}`,
+        content: typeof res === 'string' ? res : (res.analysis || JSON.stringify(res, null, 2)),
+        parsed: typeof res === 'object' ? res : null,
+        status: res.dataStatus || 'SIMULATED',
+        timestamp: new Date().toLocaleTimeString(),
+        model: 'Gemini 2.5 Flash / Longitudinal Analysis'
       });
     } catch (err) {
       alert(`Programme analysis error: ${err.message}`);
@@ -79,143 +99,222 @@ export const AIResearchAssistant = () => {
     try {
       const rep = await generateExecutiveReportAI();
       setResponse({
-        title: rep.title,
+        title: rep.title || 'Forty-Year Longitudinal Executive Synthesis (1987–2027)',
         content: rep.reportContent,
-        status: rep.dataStatus,
+        status: rep.dataStatus || 'SIMULATED',
+        timestamp: new Date().toLocaleTimeString(),
+        model: 'Gemini 2.5 Flash / Institutional Synthesis'
       });
     } catch (err) {
-      alert(`Report error: ${err.message}`);
+      alert(`Report synthesis error: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
+  const suggestedQueries = [
+    'Compute nominal vs real fee inflation CAGR across Greenwich MBA programme from 1987 to 2027.',
+    'How do Karachi private higher education fee escalations correlate with Pakistan CPI food vs non-food spikes?',
+    'Summarize institutional scholarship and Qarz-e-Hasna safety nets for working students in Sindh.',
+    'Evaluate real purchasing power parity (PPP) erosion on BS Computer Science tuition fees over 20 years.'
+  ];
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E0D6] pb-4">
+    <div className="max-w-6xl mx-auto space-y-8 animate-fadeIn">
+      {/* Editorial Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#E5E0D6]">
         <div>
-          <span className="text-xs font-mono text-[#D6AD60] font-bold uppercase">Administrative Intelligence</span>
-          <h2 className="text-2xl font-serif font-bold text-[#101C2C]">
-            Gemini AI Research Assistant
-          </h2>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider font-semibold bg-[#23865B]/15 text-[#23865B] border border-[#23865B]/30">
+              <Sparkles className="w-3 h-3 text-[#23865B]" />
+              AI Intelligence Suite
+            </span>
+            <span className="text-xs font-mono text-[#788391]">Grounding: MongoDB Atlas + PBS CPI</span>
+          </div>
+          <h1 className="text-3xl font-serif font-black text-[#101C2C] tracking-tight">
+            Archival Research Intelligence
+          </h1>
+          <p className="text-xs text-[#788391] mt-1 font-sans max-w-2xl">
+            Leverage Google Gemini 2.5 Flash and RAG grounding on four decades of Greenwich University fee archives and Pakistan Bureau of Statistics indices.
+          </p>
         </div>
-        <span className="text-xs font-mono bg-[#101C2C] text-[#D6AD60] px-3 py-1.5 rounded-lg border border-[#1A2B40]">
-          Gemini 2.5 Flash Connected
-        </span>
+
+        <button
+          onClick={handleGenerateReport}
+          disabled={loading}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#101C2C] text-[#F5F1E8] hover:bg-[#1A2B40] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-md active:translate-y-0.5 disabled:opacity-50 cursor-pointer self-start sm:self-auto"
+        >
+          <FileText className="w-4 h-4 text-[#D6AD60]" />
+          <span>{loading ? 'Synthesizing...' : 'Generate 40-Yr Executive Report'}</span>
+        </button>
       </div>
 
-      {/* ACTION TILES */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-white border border-[#E5E0D6] rounded-xl p-5 shadow-sm space-y-3">
-          <div className="flex items-center gap-2 font-serif font-bold text-base text-[#101C2C]">
-            <BookOpen className="w-4 h-4 text-[#426B70]" />
-            <h3>Faculty Econometric Analysis</h3>
+      {/* Control Strip & Operational Workbenches */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Left Col: Faculty Analyzer */}
+        <div className="bg-white border border-[#E5E0D6] rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-[#E5E0D6]">
+            <GraduationCap className="w-4 h-4 text-[#D6AD60]" />
+            <h2 className="text-xs font-mono uppercase font-bold tracking-wider text-[#101C2C]">
+              Faculty Deep Dive Analyzer
+            </h2>
           </div>
-          <p className="text-xs text-[#788391]">
-            Select an individual academic faculty to generate a structured 40-year CAGR, purchasing power, and nominal analysis.
+          <p className="text-xs text-[#788391] font-sans">
+            Run an automated longitudinal econometrics audit on an individual degree programme.
           </p>
-          <div className="flex items-center gap-2 pt-2">
+          <div className="space-y-3">
+            <label className="block text-[11px] font-mono font-semibold uppercase text-[#788391]">
+              Select Academic Discipline
+            </label>
             <select
               value={selectedProg}
               onChange={(e) => setSelectedProg(e.target.value)}
-              className="flex-1 bg-[#F5F1E8] border border-[#E5E0D6] rounded-lg px-3 py-2 text-xs font-mono text-[#101C2C]"
+              className="w-full bg-[#F5F1E8]/70 border border-[#E5E0D6] rounded-xl px-3.5 py-2.5 text-xs text-[#101C2C] font-mono focus:outline-none focus:border-[#D6AD60]"
             >
               {programmes.map((p) => (
                 <option key={p._id} value={p._id}>
-                  {p.code} — {p.name}
+                  [{p.code}] {p.name}
                 </option>
               ))}
             </select>
             <button
               onClick={handleAnalyzeSelected}
-              disabled={loading}
-              className="px-4 py-2 rounded-lg bg-[#101C2C] text-white hover:bg-[#1A2B40] text-xs font-mono font-semibold cursor-pointer disabled:opacity-50"
+              disabled={loading || !selectedProg}
+              className="w-full py-2.5 px-4 rounded-xl bg-white border border-[#101C2C] text-[#101C2C] hover:bg-[#101C2C] hover:text-[#F5F1E8] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
             >
-              {loading ? 'Analyzing...' : 'Run Analysis'}
+              <TrendingUp className="w-4 h-4 text-[#D6AD60]" />
+              <span>Analyze Trajectory</span>
             </button>
           </div>
         </div>
 
-        <div className="bg-white border border-[#E5E0D6] rounded-xl p-5 shadow-sm space-y-3">
-          <div className="flex items-center gap-2 font-serif font-bold text-base text-[#101C2C]">
-            <FileText className="w-4 h-4 text-[#23865B]" />
-            <h3>Comprehensive Monograph Synthesis</h3>
+        {/* Right Col: Custom Research Prompt Console */}
+        <div className="lg:col-span-2 bg-white border border-[#E5E0D6] rounded-2xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E5E0D6]">
+            <div className="flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-[#D6AD60]" />
+              <h2 className="text-xs font-mono uppercase font-bold tracking-wider text-[#101C2C]">
+                Natural Language Research Console
+              </h2>
+            </div>
+            <span className="text-[10px] font-mono text-[#788391]">Zero-Hallucination Guardrails</span>
           </div>
-          <p className="text-xs text-[#788391]">
-            Synthesizes all 400 fee records, 40 CPI index years, and Karachi educational philanthropy into an executive monograph.
-          </p>
+
+          <form onSubmit={handleCustomQuery} className="space-y-3">
+            <div className="relative">
+              <textarea
+                rows="3"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Ask any empirical question regarding 1987–2027 fee trajectories, CPI indexation, or faculty inflation..."
+                className="w-full bg-[#F5F1E8]/70 border border-[#E5E0D6] rounded-xl p-3.5 text-xs text-[#101C2C] font-sans focus:outline-none focus:border-[#D6AD60] focus:ring-1 focus:ring-[#D6AD60]"
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#788391]">
+                <Cpu className="w-3.5 h-3.5 text-[#23865B]" />
+                <span>Grounding: 400+ DB Records</span>
+              </div>
+              <button
+                type="submit"
+                disabled={loading || !prompt.trim()}
+                className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-[#101C2C] text-[#F5F1E8] hover:bg-[#1A2B40] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5 text-[#D6AD60]" />
+                <span>{loading ? 'Executing...' : 'Dispatch Query'}</span>
+              </button>
+            </div>
+          </form>
+
+          {/* Prompt Suggestion Chips */}
           <div className="pt-2">
-            <button
-              onClick={handleGenerateReport}
-              disabled={loading}
-              className="w-full px-4 py-2 rounded-lg bg-[#D6AD60] text-[#101C2C] hover:bg-[#c49b4c] text-xs font-mono font-bold uppercase tracking-wider cursor-pointer disabled:opacity-50"
-            >
-              {loading ? 'Drafting Synthesis...' : 'Generate 40-Year Executive Monograph'}
-            </button>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#788391] block mb-2 font-bold">
+              Archival Query Presets:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {suggestQueries(suggestedQueries, (q) => { setPrompt(q); })}
+            </div>
           </div>
         </div>
+
       </div>
 
-      {/* CUSTOM PROMPT CHAT INPUT */}
-      <form onSubmit={handleCustomQuery} className="bg-white border border-[#E5E0D6] rounded-xl p-4 shadow-sm flex items-center gap-3">
-        <Sparkles className="w-5 h-5 text-[#D6AD60] shrink-0" />
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ask a custom research question across the 40-year historical dataset..."
-          className="flex-1 bg-transparent text-xs sm:text-sm text-[#101C2C] focus:outline-none font-mono"
-        />
-        <button
-          type="submit"
-          disabled={loading || !prompt.trim()}
-          className="px-4 py-2 rounded-lg bg-[#101C2C] text-white text-xs font-mono font-semibold hover:bg-[#1A2B40] cursor-pointer disabled:opacity-50"
-        >
-          Submit
-        </button>
-      </form>
+      {/* Output / Results Card */}
+      {loading && (
+        <div className="p-12 bg-white border border-[#E5E0D6] rounded-2xl text-center space-y-3 shadow-sm animate-pulse">
+          <div className="w-10 h-10 rounded-xl bg-[#101C2C] text-[#D6AD60] flex items-center justify-center mx-auto shadow-md">
+            <Sparkles className="w-5 h-5 animate-spin" />
+          </div>
+          <p className="font-mono text-xs font-bold text-[#101C2C]">
+            Synthesizing Archival Ledger & PBS CPI Indices...
+          </p>
+          <p className="text-xs text-[#788391] font-sans">
+            Computing compound annual growth rates, real fee deflations, and econometric historical milestones.
+          </p>
+        </div>
+      )}
 
-      {/* AI RESULT DISPLAY */}
-      {response && (
-        <div className="bg-white border border-[#E5E0D6] rounded-xl p-6 shadow-sm space-y-4">
-          <div className="flex items-center justify-between border-b border-[#E5E0D6] pb-3">
-            <h3 className="font-serif font-bold text-lg text-[#101C2C]">
-              {response.title}
-            </h3>
-            <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-[#D6AD60]/15 text-[#966b1a] border border-[#D6AD60]/30 font-bold">
-              Status: {response.status}
-            </span>
+      {response && !loading && (
+        <div className="bg-white border border-[#E5E0D6] rounded-2xl shadow-sm overflow-hidden animate-fadeIn">
+          {/* Response Meta Header */}
+          <div className="bg-[#101C2C] text-[#F5F1E8] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1A2B40]">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider font-bold bg-[#D6AD60]/20 text-[#D6AD60] border border-[#D6AD60]/40">
+                  {response.status}
+                </span>
+                <span className="text-[11px] font-mono text-[#F5F1E8]/70">
+                  Model: {response.model} · {response.timestamp}
+                </span>
+              </div>
+              <h3 className="text-lg font-serif font-bold text-white tracking-wide">
+                {response.title}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleCopy(response.content)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1A2B40] hover:bg-[#22354d] text-xs font-mono text-[#F5F1E8] transition-colors border border-white/10 cursor-pointer"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-[#23865B]" /> : <Copy className="w-3.5 h-3.5 text-[#D6AD60]" />}
+                <span>{copied ? 'Copied' : 'Copy Synthesis'}</span>
+              </button>
+            </div>
           </div>
 
-          {response.parsed ? (
-            <div className="space-y-4 font-mono text-xs">
-              <p className="text-sm font-sans italic text-[#426B70] leading-relaxed border-l-2 border-[#D6AD60] pl-3">
-                "{response.parsed.summary}"
-              </p>
-              {response.parsed.keyFindings && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {response.parsed.keyFindings.map((f, i) => (
-                    <div key={i} className="p-3 bg-[#F5F1E8] rounded-lg border border-[#E5E0D6]">
-                      <span className="text-[#788391] block text-[11px]">{f.title}</span>
-                      <span className="text-sm font-bold text-[#101C2C] block mt-1">{f.value}</span>
-                      <span className="text-[11px] text-[#788391] mt-1 block">{f.description}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-xs sm:text-sm text-[#101C2C] leading-relaxed whitespace-pre-line font-sans">
+          {/* Response Markdown / Content Body */}
+          <div className="p-6 sm:p-8 space-y-4">
+            <div className="prose prose-sm max-w-none text-xs leading-relaxed text-[#101C2C] font-sans whitespace-pre-line">
               {response.content}
             </div>
-          )}
+
+            <div className="mt-8 pt-4 border-t border-[#E5E0D6] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[11px] font-mono text-[#788391]">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-3.5 h-3.5 text-[#D6AD60]" />
+                <span>Grounding: Archival records from Greenwich University & Pakistan Bureau of Statistics</span>
+              </div>
+              <span>Journey 40 Research Analytics Engine</span>
+            </div>
+          </div>
         </div>
       )}
 
     </div>
   );
 };
+
+function suggestQueries(queries, onSelect) {
+  return queries.map((q, idx) => (
+    <button
+      key={idx}
+      type="button"
+      onClick={() => onSelect(q)}
+      className="text-left text-[11px] font-sans px-3 py-1.5 rounded-lg bg-[#F5F1E8] hover:bg-[#E5E0D6] text-[#101C2C] transition-colors border border-[#E5E0D6] cursor-pointer"
+    >
+      "{q.length > 60 ? q.slice(0, 60) + '...' : q}"
+    </button>
+  ));
+}
 
 export default AIResearchAssistant;

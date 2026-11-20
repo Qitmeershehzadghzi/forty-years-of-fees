@@ -1,5 +1,5 @@
 /**
- * Synthetic CPI Inflation Series (1987–2026)
+ * Synthetic CPI Inflation Series (1987–2027)
  * Forty Years of Fees — Greenwich University Journey 40
  * Reference series: 2015-16 Base Year (2016 = 100.0)
  * Note: Clearly identified as simulated benchmark data for research testing.
@@ -48,10 +48,11 @@ export const generateSyntheticCPI = () => {
     2024: 275.53,
     2025: 325.12,
     2026: 370.64,
+    2027: 412.50,
   };
 
   const records = [];
-  for (let year = 1987; year <= 2026; year++) {
+  for (let year = 1987; year <= 2027; year++) {
     records.push({
       year,
       cpiValue: cpiTable[year] || Number((100 * Math.pow(1.08, year - 2016)).toFixed(2)),

@@ -20,7 +20,7 @@ export const askAIChat = async (question) => {
   return res.data;
 };
 
-export const analyzeProgrammeAI = async (programmeId, baseYear = 2026) => {
+export const analyzeProgrammeAI = async (programmeId, baseYear = 2027) => {
   const res = await api.post('/ai/analyze-programme', { programmeId, baseYear });
   return res.data;
 };

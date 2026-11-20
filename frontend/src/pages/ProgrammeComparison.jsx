@@ -1,46 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Layers,
-  ArrowRight,
-  TrendingUp,
-  Percent,
-  CheckSquare,
-  Square,
-  Sparkles
-} from 'lucide-react';
-import SectionHeading from '../components/common/SectionHeading.jsx';
-import Button from '../components/common/Button.jsx';
+import { Check, Layers } from 'lucide-react';
 import ProgrammeComparisonChart from '../components/charts/ProgrammeComparisonChart.jsx';
 import Loading from '../components/common/Loading.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 
 import { getProgrammeComparison } from '../services/analyticsService.js';
 import { getProgrammes } from '../services/programmeService.js';
-import { formatPKR, formatPercent } from '../utils/currencyFormatter.js';
+import { formatPKR } from '../utils/currencyFormatter.js';
 import { getProgrammeColor } from '../utils/chartHelpers.js';
+
+const START_YEAR = 1987;
+const END_YEAR = 2027;
+const MAX_SELECTED = 5;
+
+const selectClass = 'rounded-lg border border-[#E2E7E2] bg-white px-3 py-2 text-sm text-[#12231F] focus:outline-none focus:border-[#0F5C4E]';
 
 export const ProgrammeComparison = () => {
   const [allProgrammes, setAllProgrammes] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [chartMode, setChartMode] = useState('nominal'); // 'nominal' or 'real'
+  const [mode, setMode] = useState('nominal');
   const [feeType, setFeeType] = useState('Total Annual Fee');
-  const [baseYear, setBaseYear] = useState(2026);
-  const [startYear, setStartYear] = useState(1987);
-  const [endYear, setEndYear] = useState(2026);
+  const [baseYear, setBaseYear] = useState(END_YEAR);
 
   const [comparisonData, setComparisonData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load available programmes
   useEffect(() => {
     async function init() {
       try {
         const progs = await getProgrammes();
         setAllProgrammes(progs);
-        // Default select first 3 programmes: BBA, BSCS, BSSE
-        const defaultSelected = progs.slice(0, 3).map(p => p._id);
-        setSelectedIds(defaultSelected);
+        setSelectedIds(progs.slice(0, 3).map(p => p._id));
       } catch (err) {
         console.error('Failed to load programmes:', err);
       }
@@ -48,7 +39,6 @@ export const ProgrammeComparison = () => {
     init();
   }, []);
 
-  // Fetch comparison data when selections change
   const fetchComparison = async () => {
     if (selectedIds.length === 0) return;
     try {
@@ -58,212 +48,190 @@ export const ProgrammeComparison = () => {
         programmeIds: selectedIds.join(','),
         feeType,
         baseYear,
-        startYear,
-        endYear,
+        startYear: START_YEAR,
+        endYear: END_YEAR,
       });
       setComparisonData(res);
     } catch (err) {
-      setError(err.message || 'Failed to compare programmes');
+      setError(err.message || 'Could not compare these programmes.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (selectedIds.length > 0) {
-      fetchComparison();
-    }
-  }, [selectedIds, chartMode, feeType, baseYear, startYear, endYear]);
+    if (selectedIds.length > 0) fetchComparison();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIds, feeType, baseYear]);
 
   const toggleProgramme = (id) => {
     if (selectedIds.includes(id)) {
-      if (selectedIds.length <= 1) return; // Keep at least one selected
+      if (selectedIds.length <= 1) return;
       setSelectedIds(selectedIds.filter(item => item !== id));
-    } else {
-      if (selectedIds.length >= 5) {
-        alert('You can compare a maximum of 5 programmes simultaneously.');
-        return;
-      }
-      setSelectedIds([...selectedIds, id]);
+      return;
     }
+    if (selectedIds.length >= MAX_SELECTED) return;
+    setSelectedIds([...selectedIds, id]);
   };
 
+  const firstYear = comparisonData?.programmes?.[0]?.firstYear ?? START_YEAR;
+  const lastYear = comparisonData?.programmes?.[0]?.lastYear ?? END_YEAR;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      
-      {/* HEADER */}
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+
       <div>
-        <SectionHeading
-          badge="Multivariate Analysis"
-          title="Cross-Programme Fee Comparison"
-          subtitle="Compare multi-decade fee growth, purchasing-power divergence, and CAGR trajectories between 2 and 5 academic faculties."
-        />
+        <span className="text-xs font-semibold uppercase tracking-wider text-[#0F5C4E]">
+          Programme comparison
+        </span>
+        <h1 className="mt-2 text-3xl sm:text-4xl font-bold tracking-tight text-[#12231F]">
+          How fees moved, programme by programme
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm sm:text-base text-[#5C6B66] leading-relaxed">
+          Pick up to five programmes and compare their fees across 1987–2027, in nominal rupees
+          or in real, inflation-adjusted rupees.
+        </p>
       </div>
 
-      {/* PROGRAMME SELECTOR CHECKBOXES */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-[#788391] uppercase font-mono">
-            Select Programmes to Compare ({selectedIds.length} of 5 Selected)
-          </span>
-          <span className="text-xs text-[#D6AD60] font-mono">
-            Click to toggle series
-          </span>
+      {/* Programme picker */}
+      <div className="rounded-xl border border-[#E2E7E2] bg-white p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h2 className="text-sm font-semibold text-[#12231F] flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#0F5C4E]" />
+            Choose programmes
+          </h2>
+          <span className="text-xs text-[#5C6B66]">{selectedIds.length} of {MAX_SELECTED} selected</span>
         </div>
 
         <div className="flex flex-wrap gap-2">
           {allProgrammes.map((p, idx) => {
-            const isSelected = selectedIds.includes(p._id);
-            const color = getProgrammeColor(p.code, idx);
+            const selected = selectedIds.includes(p._id);
             return (
               <button
                 key={p._id}
+                type="button"
                 onClick={() => toggleProgramme(p._id)}
-                className={`px-3 py-2 rounded-lg text-xs font-mono font-medium transition-all flex items-center gap-2 border cursor-pointer ${
-                  isSelected
-                    ? 'bg-[#101C2C] text-white border-[#101C2C] shadow-sm'
-                    : 'bg-[#F5F1E8] text-[#788391] border-[#E5E0D6] hover:bg-white'
+                className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                  selected
+                    ? 'border-[#0F5C4E] bg-[#EDF5F2] text-[#0F5C4E]'
+                    : 'border-[#E2E7E2] bg-white text-[#5C6B66] hover:bg-[#F6F7F4]'
                 }`}
               >
                 <span
                   className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: isSelected ? color : '#788391' }}
-                ></span>
-                <span>{p.code} — {p.name}</span>
-                {isSelected ? (
-                  <CheckSquare className="w-3.5 h-3.5 text-[#D6AD60]" />
-                ) : (
-                  <Square className="w-3.5 h-3.5 text-[#788391]" />
-                )}
+                  style={{ backgroundColor: selected ? getProgrammeColor(p.code, idx) : '#CBD5CE' }}
+                />
+                <span>{p.code}</span>
+                {selected && <Check className="w-3.5 h-3.5" />}
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* DISPLAY CONTROLS */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-white border border-[#E5E0D6] rounded-xl shadow-sm">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-mono font-semibold text-[#788391] uppercase">Chart Valuation Mode:</span>
-          <div className="inline-flex rounded-lg border border-[#E5E0D6] p-1 bg-[#F5F1E8]">
-            <button
-              onClick={() => setChartMode('nominal')}
-              className={`px-3 py-1 rounded text-xs font-mono font-semibold transition-colors cursor-pointer ${
-                chartMode === 'nominal' ? 'bg-[#101C2C] text-white shadow-sm' : 'text-[#788391] hover:text-[#101C2C]'
-              }`}
-            >
-              Nominal PKR (Actual Paid)
-            </button>
-            <button
-              onClick={() => setChartMode('real')}
-              className={`px-3 py-1 rounded text-xs font-mono font-semibold transition-colors cursor-pointer ${
-                chartMode === 'real' ? 'bg-[#D6AD60] text-[#101C2C] shadow-sm font-bold' : 'text-[#788391] hover:text-[#101C2C]'
-              }`}
-            >
-              Real Purchasing Power ({baseYear} PKR)
-            </button>
-          </div>
+      {/* Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E2E7E2] bg-white p-4">
+        <div className="inline-flex rounded-lg border border-[#E2E7E2] p-0.5 bg-[#F6F7F4]">
+          <button
+            onClick={() => setMode('nominal')}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              mode === 'nominal' ? 'bg-white text-[#12231F] shadow-sm' : 'text-[#5C6B66]'
+            }`}
+          >
+            Nominal rupees
+          </button>
+          <button
+            onClick={() => setMode('real')}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${
+              mode === 'real' ? 'bg-white text-[#12231F] shadow-sm' : 'text-[#5C6B66]'
+            }`}
+          >
+            Real rupees ({baseYear})
+          </button>
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono">
-          <div className="flex items-center gap-2">
-            <span className="text-[#788391]">Base Year:</span>
-            <select
-              value={baseYear}
-              onChange={(e) => setBaseYear(Number(e.target.value))}
-              className="bg-[#F5F1E8] border border-[#E5E0D6] rounded px-2 py-1 font-bold text-[#101C2C]"
-            >
-              <option value={2026}>2026 (Current)</option>
-              <option value={2016}>2016 (PBS Base)</option>
-              <option value={2000}>2000</option>
-              <option value={1987}>1987 (Inception)</option>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-[#5C6B66]">
+          <label className="flex items-center gap-2">
+            Fee item
+            <select value={feeType} onChange={e => setFeeType(e.target.value)} className={selectClass}>
+              <option value="Total Annual Fee">Total annual fee</option>
+              <option value="Tuition Fee">Tuition fee</option>
+              <option value="Admission Fee">Admission fee</option>
+              <option value="Examination Fee">Examination fee</option>
             </select>
-          </div>
+          </label>
+          <label className="flex items-center gap-2">
+            Base year
+            <select value={baseYear} onChange={e => setBaseYear(Number(e.target.value))} className={selectClass}>
+              <option value={2027}>2027 (current)</option>
+              <option value={2016}>2016 (PBS base)</option>
+              <option value={2000}>2000</option>
+              <option value={1987}>1987</option>
+            </select>
+          </label>
         </div>
       </div>
 
-      {/* COMPARISON CHART */}
-      <div className="bg-white border border-[#E5E0D6] rounded-xl p-6 shadow-sm">
+      {/* Chart */}
+      <div className="rounded-xl border border-[#E2E7E2] bg-white p-4 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h2 className="text-lg font-semibold text-[#12231F]">
+            {mode === 'real' ? `Real fees in ${baseYear} rupees` : 'Nominal fees'}
+          </h2>
+          <span className="text-xs text-[#5C6B66]">{firstYear} – {lastYear}</span>
+        </div>
+
         {loading ? (
-          <div className="py-24">
-            <Loading text="Computing multi-programme growth series..." />
-          </div>
+          <div className="py-20"><Loading text="Building comparison..." /></div>
         ) : error ? (
           <ErrorState message={error} onRetry={fetchComparison} />
         ) : comparisonData?.series ? (
-          <div>
-            <div className="mb-4 flex items-center justify-between border-b border-[#E5E0D6] pb-3">
-              <h3 className="font-serif font-bold text-lg text-[#101C2C]">
-                40-Year Fee Trajectory ({chartMode === 'real' ? `Inflation-Adjusted Real ${baseYear} PKR` : 'Historical Nominal PKR'})
-              </h3>
-              <span className="text-xs font-mono text-[#D6AD60]">
-                1987 — 2026 Continuous Coverage
-              </span>
-            </div>
-            <ProgrammeComparisonChart
-              data={comparisonData.series}
-              programmes={comparisonData.programmes || []}
-              mode={chartMode}
-              height={440}
-            />
-          </div>
+          <ProgrammeComparisonChart
+            data={comparisonData.series}
+            programmes={comparisonData.programmes || []}
+            mode={mode}
+            baseYear={baseYear}
+            height={420}
+          />
         ) : null}
       </div>
 
-      {/* SUMMARY COMPARISON TABLE */}
+      {/* Summary table */}
       {comparisonData?.programmes && (
-        <div className="bg-white border border-[#E5E0D6] rounded-xl shadow-sm overflow-hidden">
-          <div className="p-4 bg-[#101C2C] text-[#F5F1E8] flex items-center justify-between">
-            <h4 className="font-serif font-bold text-sm">
-              Comparative Economic Performance Summary
-            </h4>
-            <span className="text-xs font-mono text-[#D6AD60]">
-              Base Year: {baseYear}
-            </span>
+        <div className="overflow-hidden rounded-xl border border-[#E2E7E2] bg-white">
+          <div className="border-b border-[#E2E7E2] px-4 py-3.5 sm:px-5">
+            <h2 className="text-sm font-semibold text-[#12231F]">Summary</h2>
+            <p className="mt-0.5 text-xs text-[#5C6B66]">
+              Growth from the first to the last recorded year. Real figures use a {baseYear} rupee base.
+            </p>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#F5F1E8] font-mono text-[11px] text-[#788391] uppercase border-b border-[#E5E0D6]">
-                  <th className="py-3 px-4">Programme</th>
-                  <th className="py-3 px-4">1987 Nominal</th>
-                  <th className="py-3 px-4">2026 Nominal</th>
-                  <th className="py-3 px-4">Nominal Growth (%)</th>
-                  <th className="py-3 px-4">Nominal CAGR</th>
-                  <th className="py-3 px-4">1987 Real ({baseYear})</th>
-                  <th className="py-3 px-4">2026 Real ({baseYear})</th>
-                  <th className="py-3 px-4">Real CAGR</th>
+            <table className="w-full min-w-[760px] text-left text-xs">
+              <thead className="bg-[#F6F7F4] uppercase tracking-wide text-[#5C6B66]">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Programme</th>
+                  <th className="px-4 py-3 font-semibold">{firstYear} fee</th>
+                  <th className="px-4 py-3 font-semibold">{lastYear} fee</th>
+                  <th className="px-4 py-3 font-semibold">Nominal growth</th>
+                  <th className="px-4 py-3 font-semibold">Nominal CAGR</th>
+                  <th className="px-4 py-3 font-semibold">Real CAGR</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E5E0D6] font-mono">
-                {comparisonData.programmes.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#F5F1E8]/50">
-                    <td className="py-3.5 px-4 font-bold text-[#101C2C]">
-                      <span className="text-[#D6AD60] mr-1.5">{p.code}</span>
-                      <span className="font-sans font-medium text-[#101C2C]">{p.name}</span>
+              <tbody className="divide-y divide-[#EEF1EE]">
+                {comparisonData.programmes.map(p => (
+                  <tr key={p.id} className="hover:bg-[#FAFBFA]">
+                    <td className="px-4 py-3.5">
+                      <span className="mr-2 inline-flex rounded bg-[#EDF5F2] px-1.5 py-0.5 text-[11px] font-semibold text-[#0F5C4E]">
+                        {p.code}
+                      </span>
+                      <span className="font-medium text-[#12231F]">{p.name}</span>
                     </td>
-                    <td className="py-3.5 px-4 font-semibold text-[#101C2C]">
-                      {formatPKR(p.firstFee)}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-[#101C2C]">
-                      {formatPKR(p.lastFee)}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-[#C75A5A]">
-                      +{p.nominalGrowth}%
-                    </td>
-                    <td className="py-3.5 px-4 text-[#101C2C] font-semibold">
-                      {p.nominalCAGR}% / yr
-                    </td>
-                    <td className="py-3.5 px-4 text-[#788391]">
-                      {formatPKR(p.firstReal)}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-[#D6AD60]">
-                      {formatPKR(p.lastReal)}
-                    </td>
-                    <td className="py-3.5 px-4 font-bold text-[#23865B]">
-                      {p.realCAGR}% / yr
-                    </td>
+                    <td className="px-4 py-3.5 tabular-nums text-[#5C6B66]">{formatPKR(p.firstFee)}</td>
+                    <td className="px-4 py-3.5 font-semibold tabular-nums text-[#12231F]">{formatPKR(p.lastFee)}</td>
+                    <td className="px-4 py-3.5 tabular-nums text-[#B42318]">+{p.nominalGrowth}%</td>
+                    <td className="px-4 py-3.5 tabular-nums text-[#12231F]">{p.nominalCAGR}% / yr</td>
+                    <td className="px-4 py-3.5 tabular-nums font-semibold text-[#0F5C4E]">{p.realCAGR}% / yr</td>
                   </tr>
                 ))}
               </tbody>
@@ -271,6 +239,11 @@ export const ProgrammeComparison = () => {
           </div>
         </div>
       )}
+
+      <p className="text-xs text-[#5C6B66] leading-relaxed">
+        Real growth is what is left after inflation. A programme can rise sharply in rupees and
+        still grow slowly once the CPI is taken into account.
+      </p>
 
     </div>
   );

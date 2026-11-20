@@ -16,9 +16,13 @@ import { INITIAL_SOURCES, INITIAL_RESEARCH_NOTES } from './sources.seed.js';
 import bcrypt from 'bcryptjs';
 
 export async function runSeed() {
+  if (!config.admin.email || !config.admin.password) {
+    throw new Error('Set ADMIN_EMAIL and ADMIN_PASSWORD in backend/.env before seeding the administrator.');
+  }
+
   console.log('----------------------------------------------------');
   console.log(' Starting Forty Years of Fees Fast Idempotent Seed');
-  console.log(' Greenwich University Karachi (Journey 40: 1987–2026)');
+  console.log(' Greenwich University Karachi (Journey 40: 1987–2027)');
   console.log('----------------------------------------------------');
 
   await connectDB();
@@ -38,11 +42,11 @@ export async function runSeed() {
   }
 
   // 2. Super Admin User
-  const adminEmail = (config.admin.email || 'qetmeer.dev@gmail.com').toLowerCase();
+  const adminEmail = config.admin.email.toLowerCase();
   let admin = await User.findOne({ email: adminEmail });
   if (!admin) {
     const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(config.admin.password || 'Admin123!40Years', salt);
+    const passwordHash = await bcrypt.hash(config.admin.password, salt);
     admin = await User.create({
       name: config.admin.name || 'Super Administrator',
       email: adminEmail,
@@ -88,8 +92,8 @@ export async function runSeed() {
   }
   const defaultSourceId = createdSources[0]?._id;
 
-  // 5. CPI Inflation Data (1987-2026) via bulkWrite
-  console.log('[Seed] Bulk upserting 40-year CPI series (1987–2026)...');
+  // 5. CPI Inflation Data (1987-2027) via bulkWrite
+  console.log('[Seed] Bulk upserting 41-year CPI series (1987–2027)...');
   const cpiRecords = generateSyntheticCPI();
   const cpiOps = cpiRecords.map(cpi => ({
     updateOne: {
@@ -99,11 +103,16 @@ export async function runSeed() {
     }
   }));
   await InflationIndex.bulkWrite(cpiOps);
-  console.log('[Seed] 40-year CPI series verified.');
+  console.log('[Seed] 41-year CPI series verified.');
 
-  // 6. 40 Years of Fee Records for each programme via bulkWrite
-  console.log('[Seed] Generating synthetic 40-year fee records for all programmes...');
+  // 6. 41 Years of Fee Records for each programme via bulkWrite
+  console.log('[Seed] Generating synthetic 41-year fee records for all programmes...');
   const feeBatch = generateSyntheticFees(activeProgrammes, site._id);
+  // Refresh only generated records for the configured programmes; verified archive rows are preserved.
+  await FeeRecord.deleteMany({
+    dataType: 'SIMULATED',
+    programmeId: { $in: activeProgrammes.map(programme => programme._id) },
+  });
   const feeOps = feeBatch.map(item => ({
     updateOne: {
       filter: {
@@ -151,9 +160,9 @@ export async function runSeed() {
 
   console.log('----------------------------------------------------');
   console.log(' Database Seeding Completed Successfully!');
-  console.log(` Total Annual Tuition Records: ${totalAnnualTuitions} (40 years × 10 programmes = 400)`);
+  console.log(` Total Annual Tuition Records: ${totalAnnualTuitions} (41 years × 10 programmes = 410)`);
   console.log(` Total Component Fee Records: ${totalFees}`);
-  console.log(` Total CPI Inflation Records: ${totalCPI} (1987–2026)`);
+  console.log(` Total CPI Inflation Records: ${totalCPI} (1987–2027)`);
   console.log(` Initial Admin: ${adminEmail}`);
   console.log('----------------------------------------------------');
 }

@@ -21,4 +21,4 @@ export function getGeminiClient() {
   return aiClient;
 }
 
-export const GEMINI_MODEL = config.gemini.model || 'gemini-2.5-flash';
+export const GEMINI_MODEL = config.gemini.model || 'gemini-3.5-flash-lite';

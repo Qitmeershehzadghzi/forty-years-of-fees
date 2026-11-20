@@ -30,7 +30,7 @@ export const getOverviewStats = async () => {
   ]);
 
   return {
-    researchPeriod: '1987–2026 (40 Years)',
+    researchPeriod: '1987–2027 (41 Years)',
     totalProgrammes,
     totalRecords,
     simulatedRecords,
@@ -46,7 +46,7 @@ export const getOverviewStats = async () => {
 export const getNominalFeesData = async (query = {}) => {
   const feeType = query.feeType || 'Total Annual Fee';
   const startYear = Number(query.startYear) || 1987;
-  const endYear = Number(query.endYear) || 2026;
+  const endYear = Number(query.endYear) || 2027;
 
   let progFilter = { isActive: true };
   if (query.programmeIds) {
@@ -97,10 +97,10 @@ export const getRealFeesData = async (query = {}) => {
 
   if (!programme) throw new Error('Programme not found');
 
-  const baseYear = Number(query.baseYear) || 2026;
+  const baseYear = Number(query.baseYear) || 2027;
   const feeType = query.feeType || 'Total Annual Fee';
   const startYear = Number(query.startYear) || 1987;
-  const endYear = Number(query.endYear) || 2026;
+  const endYear = Number(query.endYear) || 2027;
 
   // Fetch CPI records
   const cpiRecords = await InflationIndex.find({
@@ -182,10 +182,10 @@ export const getProgrammeComparisonData = async (query = {}) => {
     programmes = await Programme.find({ isActive: true }).limit(4);
   }
 
-  const baseYear = Number(query.baseYear) || 2026;
+  const baseYear = Number(query.baseYear) || 2027;
   const feeType = query.feeType || 'Total Annual Fee';
   const startYear = Number(query.startYear) || 1987;
-  const endYear = Number(query.endYear) || 2026;
+  const endYear = Number(query.endYear) || 2027;
 
   const progIds = programmes.map(p => p._id);
   const [feeRecords, cpiRecords] = await Promise.all([
@@ -269,7 +269,7 @@ export const getProgrammeComparisonData = async (query = {}) => {
 
 export const getInflationTrendsData = async (query = {}) => {
   const startYear = Number(query.startYear) || 1987;
-  const endYear = Number(query.endYear) || 2026;
+  const endYear = Number(query.endYear) || 2027;
 
   const records = await InflationIndex.find({
     year: { $gte: startYear - 1, $lte: endYear },
@@ -301,7 +301,7 @@ export const getInflationTrendsData = async (query = {}) => {
 };
 
 export const getFeeGrowthData = async (query = {}) => {
-  const baseYear = Number(query.baseYear) || 2026;
+  const baseYear = Number(query.baseYear) || 2027;
   const feeType = query.feeType || 'Total Annual Fee';
 
   const programmes = await Programme.find({ isActive: true });
@@ -362,7 +362,7 @@ export const getFeeGrowthData = async (query = {}) => {
 export const getDataQualityReport = async () => {
   const programmes = await Programme.find();
   const allYears = [];
-  for (let y = 1987; y <= 2026; y++) allYears.push(y);
+  for (let y = 1987; y <= 2027; y++) allYears.push(y);
 
   const [fees, cpiList, sources] = await Promise.all([
     FeeRecord.find(),
